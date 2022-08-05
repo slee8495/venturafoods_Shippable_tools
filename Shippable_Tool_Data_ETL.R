@@ -85,4 +85,4 @@ inv_shippable %>%
   dplyr::left_join(open_orders_pivot, by = "ref") %>% 
   dplyr::left_join(forecast_pivot) -> a
 
-writexl::write_xlsx(a, "test.xlsx")
+
