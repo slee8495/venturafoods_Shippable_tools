@@ -87,3 +87,5 @@ inv_shippable %>%
   dplyr::left_join(forecast_pivot) -> a
 
 skim(a)
+
+writexl::write_xlsx(a, "test_8.8.22.xlsx")
