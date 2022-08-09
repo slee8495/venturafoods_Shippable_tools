@@ -11,7 +11,7 @@ library(lubridate)
 
 # File read ----
 # (1) Inventory Analysis_Shippable Tool
-inv_shippable <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Inventory Analysis_Shippable Tool (3).xlsx")
+inv_shippable <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test2/Inventory Analysis_Shippable Tool (4).xlsx")
 
 inv_shippable[-1, ] -> inv_shippable
 colnames(inv_shippable) <- inv_shippable[1, ]
@@ -30,7 +30,7 @@ inv_shippable %>%
 
 
 # (2) Open Orders - 1 Month
-open_orders_1month <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Open Orders - 1 Month.xlsx")
+open_orders_1month <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test2/Open Orders - 1 Month (2).xlsx")
 
 open_orders_1month[-1, ] -> open_orders_1month
 colnames(open_orders_1month) <- open_orders_1month[1, ]
@@ -46,11 +46,12 @@ open_orders_1month %>%
   dplyr::relocate(ref) %>% 
   dplyr::mutate(year = stringr::str_sub(sales_order_requested_ship_date, 1, 4),
                 month = stringr::str_sub(sales_order_requested_ship_date, 6, 7),
-                year_month = paste0(year, "_", month)) -> open_orders_1month
+                year_month = paste0(year, "_", month, " (open)")) %>% 
+  dplyr::filter(dplyr::between(sales_order_requested_ship_date, Sys.Date(), Sys.Date() + 28)) -> open_orders_1month
 
 
 # (3) Forecast - 5 months begins after 1 month
-forecast_5months <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Forecast - 5 months begins after 1 month.xlsx")
+forecast_5months <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test2/Forecast - 5 months begins after 1 month.xlsx")
 
 forecast_5months[-1, ] -> forecast_5months
 colnames(forecast_5months) <- forecast_5months[1, ]
@@ -65,7 +66,7 @@ forecast_5months %>%
                 adjusted_forecast_cases = replace(adjusted_forecast_cases, is.na(adjusted_forecast_cases), 0),
                 year = stringr::str_sub(forecast_month_year, 1, 4),
                 month = stringr::str_sub(forecast_month_year, 5, 6),
-                year_month = paste0(year, "_", month)) %>% 
+                year_month = paste0(year, "_", month, " (forecast)")) %>% 
   dplyr::relocate(ref) -> forecast_5months
 
 
