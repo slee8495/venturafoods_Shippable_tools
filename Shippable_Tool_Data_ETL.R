@@ -11,7 +11,7 @@ library(lubridate)
 
 # File read ----
 # (1) Inventory Analysis_Shippable Tool
-inv_shippable <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test2/Inventory Analysis_Shippable Tool (4).xlsx")
+inv_shippable <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test2/Inventory Analysis_Shippable Tool (5).xlsx")
 
 inv_shippable[-1, ] -> inv_shippable
 colnames(inv_shippable) <- inv_shippable[1, ]
@@ -20,12 +20,14 @@ inv_shippable[-1, ] -> inv_shippable
 inv_shippable %>% 
   janitor::clean_names() %>% 
   dplyr::mutate(sku = gsub("-", "", sku)) %>% 
+  dplyr::filter(days_left > 0) %>%
+  dplyr::filter(!is.na(mfg_date)) %>% 
   readr::type_convert() %>% 
   dplyr::mutate(ref = paste0(location, "_", sku),
                 mfg_date = as.Date(mfg_date, origin = "1899-12-30"),
                 expiration_date = as.Date(expiration_date, origin = "1899-12-30"),
                 calculated_shippable_date = as.Date(calculated_shippable_date, origin = "1899-12-30")) %>% 
-  dplyr::relocate(ref)  -> inv_shippable
+  dplyr::relocate(ref) -> inv_shippable
 
 
 
