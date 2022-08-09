@@ -98,7 +98,7 @@ inv_shippable %>%
 # Risk 0 - 30 days
 
 # Logic: if calculated_days_left_to_ship is 31. and the average sales of this item is 1 cases a day. there will be 1 case risk
-
+# excel line 3682
 # =ifelse(calculated_days_left_to_ship > 30, 0, inventory_qty_cases - (avg sales of the day * calculated_days_left_to_ship))
 
 
