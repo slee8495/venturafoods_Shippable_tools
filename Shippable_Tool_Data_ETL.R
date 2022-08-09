@@ -21,7 +21,8 @@ inv_shippable %>%
   janitor::clean_names() %>% 
   dplyr::mutate(sku = gsub("-", "", sku)) %>% 
   dplyr::filter(days_left > 0) %>%
-  dplyr::filter(!is.na(mfg_date)) %>% 
+  dplyr::filter(!is.na(mfg_date)) %>%
+  dplyr::filter(!is.na(label)) %>% 
   readr::type_convert() %>% 
   dplyr::mutate(ref = paste0(location, "_", sku),
                 mfg_date = as.Date(mfg_date, origin = "1899-12-30"),
@@ -86,8 +87,27 @@ forecast_pivot %>% head()
 # vlookup (inv_shippable & open_orders_1month)
 inv_shippable %>% 
   dplyr::left_join(open_orders_pivot, by = "ref") %>% 
-  dplyr::left_join(forecast_pivot) -> a
+  dplyr::left_join(forecast_pivot) -> inv_shippable
 
-skim(a)
 
-writexl::write_xlsx(a, "test_8.8.22.xlsx")
+# Past SSL but not on Hold
+inv_shippable %>% 
+  dplyr::mutate(past_ssl_but_not_on_hold = ifelse(calculated_days_left_to_ship < 0, 1, 0)) -> inv_shippable
+
+
+# Risk 0 - 30 days
+
+
+
+
+
+# Risk 31 - 60 days
+
+
+
+
+
+
+
+
+
