@@ -92,26 +92,61 @@ inv_shippable %>%
 
 # Past SSL but not on Hold
 inv_shippable %>% 
-  dplyr::mutate(past_ssl_but_not_on_hold = ifelse(calculated_days_left_to_ship < 0, 1, 0)) -> inv_shippable
+  dplyr::mutate(past_ssl_but_not_on_hold = ifelse(calculated_days_left_to_ship < 0, 1, 0)) %>% 
+  dplyr::relocate(past_ssl_but_not_on_hold, .after = inventory_qty_cases) -> inv_shippable
+
+##############################################################################################################################################
+##############################################################################################################################################
+##############################################################################################################################################
+
+# avg_sales_per_day 
+colnames(inv_shippable) -> colnames_inv_shippable
+data.frame(colnames_inv_shippable) -> colnames_inv_shippable
+
+colnames_inv_shippable[nrow(colnames_inv_shippable), ] -> colnames_inv_shippable
+
+colnames_inv_shippable %>% 
+  stringr::str_sub(1, 7) %>% 
+  as.data.frame() %>% 
+  dplyr::rename(last_day = ".") %>% 
+  dplyr::mutate(last_day = gsub("_", "", last_day),
+                last_day = as.factor(last_day),
+                last_day = lubridate::ym(last_day),
+                last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
+  dplyr::mutate(days = last_day - Sys.Date(),
+                days = as.integer(days)) -> duration
+  
+duration$days -> duration
+
+
+inv_shippable %>% 
+  dplyr::mutate(avg_of_sales_per_day_sum = rowSums(across(.cols = ends_with(")")), na.rm =  T),
+                avg_of_sales_per_day = avg_of_sales_per_day_sum / duration,
+                avg_of_sales_per_day = round(avg_of_sales_per_day, 0)) %>% 
+  dplyr::select(-avg_of_sales_per_day_sum) %>% 
+  dplyr::relocate(avg_of_sales_per_day, .after = past_ssl_but_not_on_hold) -> inv_shippable
+
+
 
 
 # Risk 0 - 30 days
-
-# Logic: if calculated_days_left_to_ship is 31. and the average sales of this item is 1 cases a day. there will be 1 case risk
 # excel line 3682
-# =ifelse(calculated_days_left_to_ship > 30, 0, inventory_qty_cases - (avg sales of the day * calculated_days_left_to_ship))
-
+inv_shippable %>% 
+  dplyr::mutate(risk_in_30_days = ifelse(calculated_days_left_to_ship > 30, 0, inventory_qty_cases - (avg_of_sales_per_day * calculated_days_left_to_ship))) %>% 
+  dplyr::relocate(risk_in_30_days, .after = avg_of_sales_per_day) -> inv_shippable
 
 
 # Risk 31 - 60 days
-# # =ifelse(calculated_days_left_to_ship > 60, 0, inventory_qty_cases - (avg sales of the day * calculated_days_left_to_ship))
-
+inv_shippable %>% 
+  dplyr::mutate(risk_in_60_days = ifelse(calculated_days_left_to_ship > 60, 0, inventory_qty_cases - (avg_of_sales_per_day * calculated_days_left_to_ship))) %>% 
+  dplyr::relocate(risk_in_60_days, .after = risk_in_30_days) -> inv_shippable
 
 
 # Risk 61 - 90 days
-# # =ifelse(calculated_days_left_to_ship > 60, 0, inventory_qty_cases - (avg sales of the day * calculated_days_left_to_ship))
+inv_shippable %>% 
+  dplyr::mutate(risk_in_90_days = ifelse(calculated_days_left_to_ship > 90, 0, inventory_qty_cases - (avg_of_sales_per_day * calculated_days_left_to_ship))) %>% 
+  dplyr::relocate(risk_in_90_days, .after = risk_in_60_days)-> inv_shippable
 
 
 
-
-
+writexl::write_xlsx(inv_shippable, "test.8.10.22.xlsx")
