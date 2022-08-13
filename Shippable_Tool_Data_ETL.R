@@ -50,7 +50,7 @@ open_orders_1month %>%
   dplyr::mutate(year = stringr::str_sub(sales_order_requested_ship_date, 1, 4),
                 month = stringr::str_sub(sales_order_requested_ship_date, 6, 7),
                 year_month = paste0(year, "_", month, " (open)")) %>% 
-  dplyr::filter(dplyr::between(sales_order_requested_ship_date, Sys.Date(), Sys.Date() + 28)) -> open_orders_1month
+  dplyr::filter(dplyr::between(sales_order_requested_ship_date, Sys.Date(), Sys.Date() + 15)) -> open_orders_1month
 
 
 # (3) Forecast - 5 months begins after 1 month
