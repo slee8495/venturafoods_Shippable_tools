@@ -74,7 +74,7 @@ forecast_5months %>%
 
 
 # Pivot tables (open_orders_1month)
-reshape2::dcast(open_orders_1month, ref ~ year_month , value.var = "open_order_cases", sum) -> open_orders_pivot
+reshape2::dcast(open_orders_1month, ref ~ year_month , value.var = "open_order_cases", sum) -> open_orders_pivot 
 
 # Pivot tables (forecast_5months)
 reshape2::dcast(forecast_5months, ref ~ year_month , value.var = "adjusted_forecast_cases", sum) -> forecast_pivot
@@ -150,3 +150,4 @@ inv_shippable %>%
 
 
 writexl::write_xlsx(inv_shippable, "test.8.10.22.xlsx")
+
