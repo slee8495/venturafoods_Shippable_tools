@@ -73,7 +73,7 @@ analysis_ref.2 %>%
 
 # Diff Factor
 ref <- "fist_row"
-days_left_on_ssl <- 0
+days_left_on_ssl <- NA
 
 data.frame(ref, days_left_on_ssl) -> dummy_1
 
@@ -83,6 +83,7 @@ analysis_ref.2 %>%
 rbind(dummy_1, dummy_2) -> dummy
 rm(dummy_1, dummy_2)
 
+rm(days_left_on_ssl, ref)
 
 dummy %>% 
   dplyr::mutate(days_left_on_ssl = round(days_left_on_ssl, 0)) %>% 
@@ -90,5 +91,15 @@ dummy %>%
   dplyr::rename(dummy_ref = ref,
                 dummy_days_left_on_ssl = days_left_on_ssl) %>% 
   dplyr::bind_cols(analysis_ref.2) %>% 
-  dplyr::mutate(diff_factor = ifelse(dummy_ref = ref & dummy_days_left_on_ssl > 0, days_left_on_ssl - dummy_days_left_on_ssl, 0))
+  dplyr::mutate(diff_factor = ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, days_left_on_ssl - dummy_days_left_on_ssl, 0)) %>% 
+  dplyr::relocate(diff_factor, .after = inventory_in_cost) %>% 
+  dplyr::select(-dummy_ref, -dummy_days_left_on_ssl) -> analysis_ref.2
+
+
+
+
+
+
+
+
 
