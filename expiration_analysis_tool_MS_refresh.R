@@ -94,22 +94,39 @@ exception_report %>%
   dplyr::mutate(planner_number = replace(planner_number, is.na(planner_number), 0)) -> exception_planner
 
 
-exception_planner %>% filter(ref == "203_20624WCP")
-exception_planner %>% filter(ref == "208_17680CGB")
+# (Path revision Needed) IOM for MBX ----
+# Make sure to unlock the password before import (Elli)
+iom_mbx <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Automation/SS Optimization by Location - Finished Goods August 2022.xlsx",
+                      sheet = "Fin Goods")
+
+iom_mbx[-1:-6, ] -> iom_mbx
+colnames(iom_mbx) <- iom_mbx[1, ]
+iom_mbx[-1, ] -> iom_mbx
+
+iom_mbx %>% 
+  janitor::clean_names() %>% 
+  readr::type_convert() %>% 
+  dplyr::select(ship_ref, type) %>% 
+  dplyr::mutate(ship_ref = gsub("-", "_", ship_ref)) %>% 
+  dplyr::rename(ref = ship_ref,
+                mbx = type) -> iom_mbx
+
+
 
 ##################################### ETL ####################################
 
 # Planner #
 merge(analysis_ref.2, exception_planner[, c("ref", "planner_number")], by = "ref", all.x = TRUE) %>% 
   dplyr::relocate(planner_number, .after = description) %>% 
-  dplyr::mutate(planner_number = replace(planner_number, is.na(planner_number), "DNRR")) -> a
-
-a %>% filter(ref == "203_20624WCP")
+  dplyr::mutate(planner_number = replace(planner_number, is.na(planner_number), "DNRR")) -> analysis_ref.2
 
 
   # Planner Name
 merge(analysis_ref.2, planner_address[, c("planner_number", "planner_name")], by = "planner_number", all.x = TRUE) %>% 
-  dplyr::relocate(c(planner_number, planner_name), .after = description) -> analysis_ref.2
+  dplyr::relocate(c(planner_number, planner_name), .after = description) %>% 
+  dplyr::mutate(planner_name = ifelse(planner_number == "DNRR", "DNRR",
+                                      ifelse(planner_number == 0, NA, planner_name))) -> analysis_ref.2
+
 
 
 # Days left on SSL
@@ -121,6 +138,15 @@ analysis_ref.2 %>%
   dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date(),
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
+
+
+
+# MBX
+# What is the logic of DNRR on MBX column? 
+merge(analysis_ref.2, iom_mbx[, c("ref", "mbx")], by = "ref", all.x = TRUE) %>% 
+  dplyr::mutate(mbx = ifelse(planner_number == "DNRR", "DNRR", mbx)) %>% 
+  dplyr::relocate(mbx, .after = calculated_shippable_date) -> analysis_ref.2
+
 
 # Unit Cost
 analysis_ref.2 %>% 
