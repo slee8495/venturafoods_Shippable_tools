@@ -142,7 +142,6 @@ analysis_ref.2 %>%
 
 
 # MBX
-# What is the logic of DNRR on MBX column? 
 merge(analysis_ref.2, iom_mbx[, c("ref", "mbx")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(mbx = ifelse(planner_number == "DNRR", "DNRR", mbx)) %>% 
   dplyr::relocate(mbx, .after = calculated_shippable_date) -> analysis_ref.2
