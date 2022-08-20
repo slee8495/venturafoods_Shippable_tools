@@ -115,6 +115,64 @@ iom_mbx %>%
                 mbx = type) -> iom_mbx
 
 
+# (Path revision Needed) fcst ----
+fcst <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.08.18.xlsx")
+
+fcst[-1, ] -> fcst
+colnames(fcst) <- fcst[1, ]
+fcst[-1, ] -> fcst
+
+fcst %>% 
+  janitor::clean_names() %>% 
+  readr::type_convert() %>% 
+  as.data.frame() %>% 
+  dplyr::rename(location = location_no,
+                sku = product_label_sku_code) %>% 
+  dplyr::mutate(sku = gsub("-", "", sku),
+                ref = paste0(location, "_", sku),
+                adjusted_forecast_pounds_lbs = replace(adjusted_forecast_pounds_lbs, is.na(adjusted_forecast_pounds_lbs), 0),
+                adjusted_forecast_cases = replace(adjusted_forecast_cases, is.na(adjusted_forecast_cases ), 0)) -> fcst
+
+
+reshape2::dcast(fcst, ref ~ forecast_month_year_code, value.var = "adjusted_forecast_cases", sum) -> fcst_pivot
+
+# fcst_pivot ETL  (duration for average sales per day)
+fcst_pivot %>% 
+  dplyr::select(1:8) -> fcst_pivot
+
+# avg_sales_per_day 
+colnames(fcst_pivot) -> colnames_fcst_pivot
+data.frame(colnames_fcst_pivot) -> colnames_fcst_pivot
+
+colnames_fcst_pivot[nrow(colnames_fcst_pivot), ] -> colnames_fcst_pivot
+
+colnames_fcst_pivot %>% 
+  as.data.frame() %>% 
+  dplyr::rename(last_day = ".") %>% 
+  dplyr::mutate(last_day = gsub("_", "", last_day),
+                last_day = as.factor(last_day),
+                last_day = lubridate::ym(last_day),
+                last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
+  dplyr::mutate(days = last_day - Sys.Date(),
+                days = as.integer(days)) -> duration
+
+duration$days -> duration
+
+
+# fcst_pivot with avg
+colnames(fcst_pivot)[2] <- "pre_month"
+colnames(fcst_pivot)[3] <- "current_month"
+colnames(fcst_pivot)[4] <- "fcst_month_1"
+colnames(fcst_pivot)[5] <- "fcst_month_2"
+colnames(fcst_pivot)[6] <- "fcst_month_3"
+colnames(fcst_pivot)[7] <- "fcst_month_4"
+colnames(fcst_pivot)[8] <- "fcst_month_5"
+
+
+fcst_pivot %>% 
+  dplyr::mutate(sum_fcst_5months = rowSums(across(.cols = starts_with("fcst"))))
+
+
 
 ##################################### ETL ####################################
 
@@ -210,7 +268,7 @@ analysis_ref.2 %>%
   dplyr::relocate(dummy_index, .after = index) -> analysis_ref.2
 
 
-# Diff Factor #################### your order is messed up
+# Diff Factor
 analysis_ref.2 %>% 
   dplyr::mutate(diff_factor = ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, days_left_on_ssl - dummy_days_left_on_ssl, 0)) %>% 
   dplyr::relocate(diff_factor, .after = inventory_in_cost) -> analysis_ref.2
@@ -219,10 +277,42 @@ analysis_ref.2 %>%
 
 # Inv after Custord
 plyr::ddply(analysis_ref.2, "ref", transform, inv_qty_cum_sum = cumsum(sum_of_inventory_qty)) %>% 
-  dplyr::mutate(inv_after_custord = ifelse(ref == dummy_ref, inv_qty_cum_sum - total_custord_within_15_days, sum_of_inventory_qty - total_custord_within_15_days)) -> analysis_ref.2
+  dplyr::mutate(inv_after_custord_test = ifelse(days_left_on_ssl <= 0, sum_of_inventory_qty,
+                                           ifelse(ref == dummy_ref, inv_qty_cum_sum - total_custord_within_15_days, sum_of_inventory_qty - total_custord_within_15_days))) -> analysis_ref.2
 
-# Still one more things to do on this logic..
-# you need to consider "days_left_on_ssl" column.. in Excel Column I
+
+dummy_inv_after_custord <- NA
+data.frame(dummy_inv_after_custord) -> dummy_inv_after_custord
+
+analysis_ref.2 %>% dplyr::select(inv_after_custord_test) %>% 
+  dplyr::rename(dummy_inv_after_custord = inv_after_custord_test) -> dummy_main
+
+rbind(dummy_inv_after_custord, dummy_main) -> dummy_main_2
+rm(dummy_inv_after_custord, dummy_main)
+
+dummy_main_2 %>% 
+  dplyr::slice(1:nrow(dummy_main_2) -1) %>% 
+  dplyr::bind_cols(analysis_ref.2) %>% 
+  dplyr::relocate(dummy_inv_after_custord, .after = inv_after_custord_test) %>% 
+  dplyr::mutate(inv_after_custord_test_2 = ifelse(days_left_on_ssl <= 0, sum_of_inventory_qty, 
+                                                  ifelse(!is.na(inv_after_custord_test) & is.na(dummy_inv_after_custord), inv_after_custord_test, 
+                              ifelse(inv_after_custord_test < 0 & dummy_inv_after_custord < 0, inv_after_custord_test, 
+                                     ifelse(inv_after_custord_test > 0 & dummy_inv_after_custord < 0, inv_after_custord_test, 
+                                            inv_after_custord_test - dummy_inv_after_custord))))) %>% 
+  dplyr::mutate(inv_after_custord = ifelse(ref != dummy_ref, inv_after_custord_test, inv_after_custord_test_2)) -> analysis_ref.2
+
+
+# Ending Inv After CustOrd
+analysis_ref.2 %>% 
+  dplyr::mutate(ending_inv_after_custord = ifelse(inv_after_custord < 0, 0, inv_after_custord)) -> analysis_ref.2
+
+# Ending Inv After CustOrd in $
+analysis_ref.2 %>% 
+  dplyr::mutate(ending_inv_after_custord_in_cost = ending_inv_after_custord * unit_cost) -> analysis_ref.2
+
+
+
+
 
 
 
