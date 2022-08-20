@@ -37,7 +37,10 @@ inv_lot_details %>%
 supply_pivot -> analysis_ref.2
 as.data.frame(analysis_ref.2) -> analysis_ref.2
 
-
+analysis_ref.2 %>%
+  dplyr::arrange(ref, expiration_date) %>% 
+  dplyr::mutate(index = dplyr::row_number()) %>% 
+  dplyr::relocate(index) -> analysis_ref.2
   
 # (Path revision Needed) Custord ----
 custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Automation/expiration_for_R.xlsx",
@@ -118,14 +121,16 @@ iom_mbx %>%
 # Planner #
 merge(analysis_ref.2, exception_planner[, c("ref", "planner_number")], by = "ref", all.x = TRUE) %>% 
   dplyr::relocate(planner_number, .after = description) %>% 
-  dplyr::mutate(planner_number = replace(planner_number, is.na(planner_number), "DNRR")) -> analysis_ref.2
+  dplyr::mutate(planner_number = replace(planner_number, is.na(planner_number), "DNRR")) %>% 
+  dplyr::arrange(index) -> analysis_ref.2
 
 
-  # Planner Name
+# Planner Name
 merge(analysis_ref.2, planner_address[, c("planner_number", "planner_name")], by = "planner_number", all.x = TRUE) %>% 
   dplyr::relocate(c(planner_number, planner_name), .after = description) %>% 
   dplyr::mutate(planner_name = ifelse(planner_number == "DNRR", "DNRR",
-                                      ifelse(planner_number == 0, NA, planner_name))) -> analysis_ref.2
+                                      ifelse(planner_number == 0, NA, planner_name))) %>% 
+  dplyr::arrange(index) -> analysis_ref.2
 
 
 
@@ -169,7 +174,8 @@ analysis_ref.2 %>%
 # Total CustOrd (within 15 days)
 merge(analysis_ref.2, custord_pivot[, c("ref", "sum_of_open_order_cases")], by = "ref", all.x = TRUE) %>% 
   dplyr::rename(total_custord_within_15_days = sum_of_open_order_cases) %>% 
-  dplyr::mutate(total_custord_within_15_days = replace(total_custord_within_15_days, is.na(total_custord_within_15_days), 0)) -> analysis_ref.2
+  dplyr::mutate(total_custord_within_15_days = replace(total_custord_within_15_days, is.na(total_custord_within_15_days), 0)) %>% 
+  dplyr::arrange(index) -> analysis_ref.2
 
 
 
@@ -193,7 +199,15 @@ dummy %>%
   dplyr::rename(dummy_ref = ref,
                 dummy_days_left_on_ssl = days_left_on_ssl,
                 dummy_total_custord_within_15_days = total_custord_within_15_days) %>% 
-  dplyr::bind_cols(analysis_ref.2) -> analysis_ref.2
+  dplyr::mutate(dummy_index = dplyr::row_number())-> dummy
+
+analysis_ref.2 %>% 
+  dplyr::arrange(index) %>% 
+  dplyr::bind_cols(dummy) %>% 
+  dplyr::relocate(dummy_ref, .after = ref) %>% 
+  dplyr::relocate(dummy_days_left_on_ssl, .after = days_left_on_ssl) %>% 
+  dplyr::relocate(dummy_total_custord_within_15_days, .after = total_custord_within_15_days) %>% 
+  dplyr::relocate(dummy_index, .after = index) -> analysis_ref.2
 
 
 # Diff Factor #################### your order is messed up
@@ -201,21 +215,14 @@ analysis_ref.2 %>%
   dplyr::mutate(diff_factor = ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, days_left_on_ssl - dummy_days_left_on_ssl, 0)) %>% 
   dplyr::relocate(diff_factor, .after = inventory_in_cost) -> analysis_ref.2
 
-analysis_ref.2 %>% filter(ref == "10_12311BSG")
-
 
 
 # Inv after Custord
-analysis_ref.2 %>% 
-  dplyr::mutate(inv_after_custord = ifelse(days_left_on_ssl <= 0, sum_of_inventory_qty ,
-                                           ifelse(ref = dummy_ref, 
-                                                  ifelse(dummy_days_left_on_ssl > 0 & S3 > 0, sum_of_inventory_qty, 
-                                                         SUMIFS($O$4:O4, $A$4:A4, $A4, $H$4:H4, ">0") -R3),O4-R4)))
+plyr::ddply(analysis_ref.2, "ref", transform, inv_qty_cum_sum = cumsum(sum_of_inventory_qty)) %>% 
+  dplyr::mutate(inv_after_custord = ifelse(ref == dummy_ref, inv_qty_cum_sum - total_custord_within_15_days, sum_of_inventory_qty - total_custord_within_15_days)) -> analysis_ref.2
 
-
-
-
-
+# Still one more things to do on this logic..
+# you need to consider "days_left_on_ssl" column.. in Excel Column I
 
 
 
