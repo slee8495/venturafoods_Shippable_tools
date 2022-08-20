@@ -166,35 +166,43 @@ analysis_ref.2 %>%
   dplyr::mutate(inventory_in_cost = paste("$", inventory_in_cost)) -> analysis_ref.2
 
 
-# Diff Factor
-ref <- "fist_row"
-days_left_on_ssl <- NA
-
-data.frame(ref, days_left_on_ssl) -> dummy_1
-
-analysis_ref.2 %>% 
-  dplyr::select(ref, days_left_on_ssl) -> dummy_2
-
-rbind(dummy_1, dummy_2) -> dummy
-rm(dummy_1, dummy_2)
-
-rm(days_left_on_ssl, ref)
-
-dummy %>% 
-  dplyr::mutate(days_left_on_ssl = round(days_left_on_ssl, 0)) %>% 
-  dplyr::slice(1:nrow(dummy) -1) %>% 
-  dplyr::rename(dummy_ref = ref,
-                dummy_days_left_on_ssl = days_left_on_ssl) %>% 
-  dplyr::bind_cols(analysis_ref.2) %>% 
-  dplyr::mutate(diff_factor = ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, days_left_on_ssl - dummy_days_left_on_ssl, 0)) %>% 
-  dplyr::relocate(diff_factor, .after = inventory_in_cost) -> analysis_ref.2
-
-
-
 # Total CustOrd (within 15 days)
 merge(analysis_ref.2, custord_pivot[, c("ref", "sum_of_open_order_cases")], by = "ref", all.x = TRUE) %>% 
   dplyr::rename(total_custord_within_15_days = sum_of_open_order_cases) %>% 
   dplyr::mutate(total_custord_within_15_days = replace(total_custord_within_15_days, is.na(total_custord_within_15_days), 0)) -> analysis_ref.2
+
+
+
+# Dummies 
+ref <- "fist_row"
+days_left_on_ssl <- NA
+total_custord_within_15_days <- NA
+
+data.frame(ref, days_left_on_ssl, total_custord_within_15_days) -> dummy_1
+
+analysis_ref.2 %>% 
+  dplyr::select(ref, days_left_on_ssl, total_custord_within_15_days) -> dummy_2
+
+rbind(dummy_1, dummy_2) -> dummy
+rm(dummy_1, dummy_2)
+
+rm(days_left_on_ssl, ref, total_custord_within_15_days)
+
+dummy %>% 
+  dplyr::slice(1:nrow(dummy) -1) %>% 
+  dplyr::rename(dummy_ref = ref,
+                dummy_days_left_on_ssl = days_left_on_ssl,
+                dummy_total_custord_within_15_days = total_custord_within_15_days) %>% 
+  dplyr::bind_cols(analysis_ref.2) -> analysis_ref.2
+
+
+# Diff Factor #################### your order is messed up
+analysis_ref.2 %>% 
+  dplyr::mutate(diff_factor = ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, days_left_on_ssl - dummy_days_left_on_ssl, 0)) %>% 
+  dplyr::relocate(diff_factor, .after = inventory_in_cost) -> analysis_ref.2
+
+analysis_ref.2 %>% filter(ref == "10_12311BSG")
+
 
 
 # Inv after Custord
