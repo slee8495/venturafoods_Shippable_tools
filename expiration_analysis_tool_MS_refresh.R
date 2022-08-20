@@ -157,7 +157,7 @@ colnames_fcst_pivot %>%
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
-
+duration-15 -> duration
 
 # fcst_pivot with avg
 colnames(fcst_pivot)[2] <- "pre_month"
@@ -170,7 +170,9 @@ colnames(fcst_pivot)[8] <- "fcst_month_5"
 
 
 fcst_pivot %>% 
-  dplyr::mutate(sum_fcst_5months = rowSums(across(.cols = starts_with("fcst"))))
+  dplyr::mutate(sum_fcst_5months = rowSums(across(.cols = starts_with("fcst"))),
+                fcst_daily = sum_fcst_5months / duration,
+                fcst_daily = round(fcst_daily, 0)) -> fcst_pivot
 
 
 
@@ -311,8 +313,75 @@ analysis_ref.2 %>%
   dplyr::mutate(ending_inv_after_custord_in_cost = ending_inv_after_custord * unit_cost) -> analysis_ref.2
 
 
+# Fcst daily avg (after 15 days)
+merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = TRUE) %>% 
+  dplyr::rename(fcst_daily_avg_after_15_days = fcst_daily) %>% 
+  dplyr::mutate(fcst_daily_avg_after_15_days = replace(fcst_daily_avg_after_15_days, is.na(fcst_daily_avg_after_15_days), 0)) -> analysis_ref.2
+
+# Consumption Factor
+analysis_ref.2 %>% 
+  dplyr::mutate(consumption_factor = ifelse(days_left_on_ssl <= 15, 0,
+                                            ifelse(diff_factor == 0, fcst_daily_avg_after_15_days * (days_left_on_ssl - 15), 
+                                                   fcst_daily_avg_after_15_days * diff_factor))) -> analysis_ref.2
+
+
+# Inv after Custord & Fcst
+analysis_ref.2 %>% 
+  dplyr::mutate(inv_after_custord_and_fcst = ifelse(days_left_on_ssl <= 0, 
+                                                    ending_inv_after_custord, 
+                                                    ending_inv_after_custord - consumption_factor)) -> analysis_ref.2
+
+# Ending Inv after Custord & Fcst
+analysis_ref.2 %>% 
+  dplyr::mutate(ending_inv_after_custord_and_fcst = ifelse(inv_after_custord_and_fcst < 0, 0, inv_after_custord_and_fcst)) -> analysis_ref.2
+
+
+# Ending Inv after Custord & Fcst in $
+analysis_ref.2 %>% 
+  dplyr::mutate(ending_inv_after_custord_and_fcst_in_Cost = ending_inv_after_custord_and_fcst * unit_cost) -> analysis_ref.2
 
 
 
 
+##################################################################################################################################################
+#################################################################### final touch #################################################################
+##################################################################################################################################################
 
+
+analysis_ref.2 %>% 
+  dplyr::select(ref, location, sku, description, planner_number, planner_name, lot_number, days_left_on_ssl, days_left_on_expired,
+                  expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
+                  diff_factor, total_custord_within_15_days, inv_after_custord, ending_inv_after_custord, ending_inv_after_custord_in_cost,
+                  fcst_daily_avg_after_15_days, consumption_factor, inv_after_custord_and_fcst, ending_inv_after_custord_and_fcst,
+                  ending_inv_after_custord_and_fcst_in_Cost) -> final_analysis_result
+
+
+colnames(final_analysis_result)[1]<-"ref"
+colnames(final_analysis_result)[2]<-"Location"
+colnames(final_analysis_result)[3]<-"Sku"
+colnames(final_analysis_result)[4]<-"Description"
+colnames(final_analysis_result)[5]<-"Planner#"
+colnames(final_analysis_result)[6]<-"Planner Name"
+colnames(final_analysis_result)[7]<-"Lot#"
+colnames(final_analysis_result)[8]<-"Days left on SSL"
+colnames(final_analysis_result)[9]<-"Days left on expired"
+colnames(final_analysis_result)[10]<-"Expiration Date"
+colnames(final_analysis_result)[11]<-"Calculated Shippable Date"
+colnames(final_analysis_result)[12]<-"MBX"
+colnames(final_analysis_result)[13]<-"Unit Cost"
+colnames(final_analysis_result)[14]<-"Days Range"
+colnames(final_analysis_result)[15]<-"Sum of Inventory Qty (Cases)"
+colnames(final_analysis_result)[16]<-"Inventory in $"
+colnames(final_analysis_result)[17]<-"Diff Factor"
+colnames(final_analysis_result)[18]<-"Total CustOrd (within 15 days)"
+colnames(final_analysis_result)[19]<-"Inv after CustOrd"
+colnames(final_analysis_result)[20]<-"Ending Inv After CustOrd"
+colnames(final_analysis_result)[21]<-"Ending Inv After CustOrd in $"
+colnames(final_analysis_result)[22]<-"Fcst daily avg. (after 15 days)"
+colnames(final_analysis_result)[23]<-"Consumption Factor"
+colnames(final_analysis_result)[24]<-"Inv after Custord & Fcst"
+colnames(final_analysis_result)[25]<-"Ending Inv after Custord & Fcst"
+colnames(final_analysis_result)[26]<-"Ending Inv after Custord & Fcst in $"
+
+
+writexl::write_xlsx(final_analysis_result, "expiration analysis ver3.xlsx")
