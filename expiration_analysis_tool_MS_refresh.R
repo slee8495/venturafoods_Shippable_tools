@@ -315,6 +315,7 @@ analysis_ref.2 %>%
 
 # Fcst daily avg (after 15 days)
 merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = TRUE) %>% 
+  dplyr::arrange(index) %>% 
   dplyr::rename(fcst_daily_avg_after_15_days = fcst_daily) %>% 
   dplyr::mutate(fcst_daily_avg_after_15_days = replace(fcst_daily_avg_after_15_days, is.na(fcst_daily_avg_after_15_days), 0)) -> analysis_ref.2
 
