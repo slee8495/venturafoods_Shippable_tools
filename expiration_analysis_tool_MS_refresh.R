@@ -57,7 +57,10 @@ custord %>%
   dplyr::rename(sku = product_label_sku) %>% 
   dplyr::mutate(sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
-  dplyr::relocate(ref) -> custord
+  dplyr::relocate(ref) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date() + 15, "Y", "N")) %>% 
+  dplyr::filter(date_2 == "Y") %>% 
+  dplyr::select(-date_2) -> custord
 
 # custord_pivot
 custord %>% 
