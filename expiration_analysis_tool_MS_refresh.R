@@ -11,8 +11,7 @@ library(lubridate)
 
 ####################################### File read ##################################
 # (Path revision Needed) Inventory Lot Details ----
-inv_lot_details <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Automation/expiration_for_R.xlsx",
-                              sheet = "Inventory Lot Detail")
+inv_lot_details <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test 3/Inventory Lot Detail - 08.23.22.xlsx")
 
 inv_lot_details[-1, ] -> inv_lot_details
 colnames(inv_lot_details) <- inv_lot_details[1, ]
@@ -21,12 +20,15 @@ inv_lot_details[-1, ] -> inv_lot_details
 inv_lot_details %>% 
   janitor::clean_names() %>%
   readr::type_convert() %>% 
-  dplyr::mutate(ref = paste0(location, "_", sku)) %>% 
+  dplyr::mutate(sku = gsub("-", "", sku), 
+                ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
   dplyr::mutate(mfg_date = as.Date(mfg_date, origin = "1899-12-30"),
                 calculated_shippable_date = as.Date(calculated_shippable_date, origin = "1899-12-30"),
                 expiration_date = as.Date(expiration_date, origin = "1899-12-30"),
-                last_purchase_price = round(last_purchase_price, 2)) -> inv_lot_details
+                last_purchase_price = round(last_purchase_price, 2)) %>% 
+  data.frame() %>% 
+  dplyr::rename(days_to_past_ssl = calculated_days_left_to_ship) -> inv_lot_details
 
 # supply_pivot 
 inv_lot_details %>% 
@@ -43,8 +45,7 @@ analysis_ref.2 %>%
   dplyr::relocate(index) -> analysis_ref.2
   
 # (Path revision Needed) Custord ----
-custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Automation/expiration_for_R.xlsx",
-                              sheet = "CustOrd")
+custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test 3/MSTR custord - 08.23.22.xlsx")
 
 
 custord[-1, ] -> custord
@@ -54,13 +55,17 @@ custord[-1, ] -> custord
 custord %>% 
   janitor::clean_names() %>% 
   readr::type_convert() %>% 
-  dplyr::rename(sku = product_label_sku) %>% 
-  dplyr::mutate(sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
+  dplyr::rename(sku = product_label_sku,
+                open_order_cases = oo_cases) %>% 
+  dplyr::mutate(sku = gsub("-", "", sku),
+                sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
-  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date() + 15, "Y", "N")) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-2 + 15, "Y", "N")) %>% 
   dplyr::filter(date_2 == "Y") %>% 
-  dplyr::select(-date_2) -> custord
+  dplyr::select(-date_2) %>% 
+  dplyr::mutate(open_order_cases = replace(open_order_cases, is.na(open_order_cases), 0)) -> custord
+
 
 # custord_pivot
 custord %>% 
@@ -83,7 +88,7 @@ planner_address %>%
 
 
 # (Path revision Needed) exception report ----
-exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Automation/exception report 08.17.22 (1).xlsx")
+exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test 3/exception report 08.23.22 (1).xlsx")
 
 exception_report[-1:-2, ] -> exception_report
 colnames(exception_report) <- exception_report[1, ]
@@ -119,7 +124,7 @@ iom_mbx %>%
 
 
 # (Path revision Needed) fcst ----
-fcst <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.08.18.xlsx")
+fcst <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.08.23.xlsx")
 
 fcst[-1, ] -> fcst
 colnames(fcst) <- fcst[1, ]
@@ -156,7 +161,7 @@ colnames_fcst_pivot %>%
                 last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date(),
+  dplyr::mutate(days = last_day - Sys.Date()+2,
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
@@ -201,9 +206,10 @@ merge(analysis_ref.2, planner_address[, c("planner_number", "planner_name")], by
 analysis_ref.2 %>% 
   dplyr::rename(days_left_on_ssl = days_to_past_ssl) -> analysis_ref.2
 
+
 # Days left on expired
 analysis_ref.2 %>% 
-  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date(),
+  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+2,
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
 
@@ -230,8 +236,7 @@ analysis_ref.2 %>%
 # Inventory in $
 analysis_ref.2 %>% 
   dplyr::mutate(inventory_in_cost = ifelse(sum_of_inventory_qty < 0, 0, sum_of_inventory_qty) * unit_cost) %>% 
-  dplyr::relocate(inventory_in_cost, .after = sum_of_inventory_qty) %>% 
-  dplyr::mutate(inventory_in_cost = paste("$", inventory_in_cost)) -> analysis_ref.2
+  dplyr::relocate(inventory_in_cost, .after = sum_of_inventory_qty) -> analysis_ref.2
 
 
 # Total CustOrd (within 15 days)
@@ -346,19 +351,69 @@ analysis_ref.2 %>%
 
 
 
+# testing
+testing <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test 3/expiration analysis ver3.1 - 08.23.22.xlsx",
+                      sheet = "Analysis rev.2")
+
+testing[-1, ] -> testing
+colnames(testing) <- testing[1, ]
+testing[-1, ] -> testing
+
+testing %>% 
+  janitor::clean_names() %>% 
+  readr::type_convert() %>% 
+  data.frame() -> testing
+
+analysis_ref.2 %>% 
+  dplyr::select(ref, location, sku, description, planner_number, planner_name, lot_number, days_left_on_ssl, days_left_on_expired,
+                expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
+                diff_factor, total_custord_within_15_days, inv_after_custord, ending_inv_after_custord, ending_inv_after_custord_in_cost,
+                fcst_daily_avg_after_15_days, consumption_factor, inv_after_custord_and_fcst, ending_inv_after_custord_and_fcst,
+                ending_inv_after_custord_and_fcst_in_Cost) -> aa
+
+
+sum(aa$sum_of_inventory_qty, na.rm = T)
+sum(testing$sum_of_inventory_qty_cases, na.rm = T)
+
+
+sum(aa$total_custord_within_15_days)
+sum(testing$total_cust_ord_within_15_days)
+
+sum(aa$ending_inv_after_custord, na.rm = T)
+sum(testing$ending_inv_after_cust_ord, na.rm = T)
+
+
+sum(aa$ending_inv_after_custord_in_cost, na.rm = T)
+
+
+aa %>% 
+  filter(ref == "10_12311BSG") %>% select(diff_factor, inv_after_custord, days_left_on_ssl, days_left_on_expired)
+
+testing %>% 
+  filter(ref == "10-12311BSG") %>% select(diff_factor, inv_after_cust_ord, days_left_on_ssl, days_left_on_expired)
+
+
+
+#
+
+
+##### Don't forget with the Sys.Date() 
 
 ##################################################################################################################################################
 #################################################################### final touch #################################################################
 ##################################################################################################################################################
-analysis_ref.2 %>% 
-  dplyr::mutate(ref = gsub("_", "-", ref)) -> analysis_ref.2
+
 
 analysis_ref.2 %>% 
   dplyr::select(ref, location, sku, description, planner_number, planner_name, lot_number, days_left_on_ssl, days_left_on_expired,
-                  expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
-                  diff_factor, total_custord_within_15_days, inv_after_custord, ending_inv_after_custord, ending_inv_after_custord_in_cost,
-                  fcst_daily_avg_after_15_days, consumption_factor, inv_after_custord_and_fcst, ending_inv_after_custord_and_fcst,
-                  ending_inv_after_custord_and_fcst_in_Cost) -> final_analysis_result
+                expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
+                diff_factor, total_custord_within_15_days, inv_after_custord, ending_inv_after_custord, ending_inv_after_custord_in_cost,
+                fcst_daily_avg_after_15_days, consumption_factor, inv_after_custord_and_fcst, ending_inv_after_custord_and_fcst,
+                ending_inv_after_custord_and_fcst_in_Cost) -> final_analysis_result
+
+
+analysis_ref.2 %>% 
+  dplyr::mutate(ref = gsub("_", "-", ref)) -> analysis_ref.2
 
 
 colnames(final_analysis_result)[1]<-"ref"
