@@ -33,7 +33,8 @@ inv_lot_details %>%
 # supply_pivot 
 inv_lot_details %>% 
   dplyr::group_by(ref, location, sku, description, days_to_past_ssl, lot_number, expiration_date, calculated_shippable_date, last_purchase_price) %>% 
-  dplyr::summarise(sum_of_inventory_qty = sum(inventory_qty_cases)) -> supply_pivot
+  dplyr::summarise(sum_of_inventory_qty = sum(inventory_qty_cases)) %>% 
+  dplyr::arrange(ref, days_to_past_ssl) -> supply_pivot
 
 
 supply_pivot -> analysis_ref.2
@@ -352,18 +353,6 @@ analysis_ref.2 %>%
 
 
 # testing
-testing <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test 3/expiration analysis ver3.1 - 08.23.22.xlsx",
-                      sheet = "Analysis rev.2")
-
-testing[-1, ] -> testing
-colnames(testing) <- testing[1, ]
-testing[-1, ] -> testing
-
-testing %>% 
-  janitor::clean_names() %>% 
-  readr::type_convert() %>% 
-  data.frame() -> testing
-
 analysis_ref.2 %>% 
   dplyr::select(ref, location, sku, description, planner_number, planner_name, lot_number, days_left_on_ssl, days_left_on_expired,
                 expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
@@ -372,27 +361,27 @@ analysis_ref.2 %>%
                 ending_inv_after_custord_and_fcst_in_Cost) -> aa
 
 
-sum(aa$sum_of_inventory_qty, na.rm = T)
-sum(testing$sum_of_inventory_qty_cases, na.rm = T)
+sum(aa$sum_of_inventory_qty, na.rm = T)  # match
+sum(aa$total_custord_within_15_days)   # match
+sum(aa$ending_inv_after_custord, na.rm = T)  # This one didn't match..
+sum(aa$ending_inv_after_custord_in_cost, na.rm = T)  # This one didn't match..
 
 
-sum(aa$total_custord_within_15_days)
-sum(testing$total_cust_ord_within_15_days)
 
-sum(aa$ending_inv_after_custord, na.rm = T)
-sum(testing$ending_inv_after_cust_ord, na.rm = T)
+# Let's try to match this one for Inv_after_custord (There's an error)
+aa %>% filter(ref == "10_12497LOU")
 
+aa %>% filter(ref == "30_21725WFS")
 
-sum(aa$ending_inv_after_custord_in_cost, na.rm = T)
+aa %>% filter(ref == "30_21725WFS")
 
+aa %>% filter(ref == "43_13440HVR")
 
-aa %>% 
-  filter(ref == "10_12311BSG") %>% select(diff_factor, inv_after_custord, days_left_on_ssl, days_left_on_expired)
+aa %>% filter(ref == "381_22504MRE")
 
-testing %>% 
-  filter(ref == "10-12311BSG") %>% select(diff_factor, inv_after_cust_ord, days_left_on_ssl, days_left_on_expired)
+aa %>% filter(ref == "75_18525JFM")
 
-
+aa %>% filter(ref == "208_21719WFS")
 
 #
 
