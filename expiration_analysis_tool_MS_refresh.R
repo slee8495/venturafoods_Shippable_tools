@@ -311,6 +311,9 @@ analysis_ref.2 %>%
 # 
 # 
 
+# There are few more cases to build.. look for NA values on inv_after_custord
+
+
 ###################################################################
 
 analysis_ref.2 %>% 
