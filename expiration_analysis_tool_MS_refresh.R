@@ -62,7 +62,7 @@ custord %>%
                 sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
-  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-2 + 15, "Y", "N")) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-4 + 15, "Y", "N")) %>% 
   dplyr::filter(date_2 == "Y") %>% 
   dplyr::select(-date_2) %>% 
   dplyr::mutate(open_order_cases = replace(open_order_cases, is.na(open_order_cases), 0)) -> custord
@@ -162,7 +162,7 @@ colnames_fcst_pivot %>%
                 last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date()+2,
+  dplyr::mutate(days = last_day - Sys.Date()+4,
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
@@ -210,7 +210,7 @@ analysis_ref.2 %>%
 
 # Days left on expired
 analysis_ref.2 %>% 
-  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+2,
+  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+4,
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
 
@@ -284,6 +284,89 @@ analysis_ref.2 %>%
   dplyr::mutate(diff_factor = ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, days_left_on_ssl - dummy_days_left_on_ssl, 0)) %>% 
   dplyr::relocate(diff_factor, .after = inventory_in_cost) -> analysis_ref.2
 
+######################### Teseting #################################
+
+a %>% filter(ref == "10_12497LOU") %>% select(ref, dummy_ref, dummy_days_left_on_ssl, days_left_on_ssl, sum_of_inventory_qty, total_custord_within_15_days, inv_after_custord_cal_1, inv_qty_cum_sum, inv_qty_cum_sum_cal, inv_qty_cum_sum_cal_2) -> b
+
+b %>% 
+  dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
+                                                 ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
+                inv_after_custord_case2 = ifelse(ref != dummy_ref & days_left_on_ssl > 0, sum_of_inventory_qty - total_custord_within_15_days, 
+                                                 ifelse(dummy_days_left_on_ssl > 0, inv_qty_cum_sum - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)))
+
+a %>% filter(ref == "30_21725WFS") %>% select(ref, dummy_ref, dummy_days_left_on_ssl, days_left_on_ssl, sum_of_inventory_qty, total_custord_within_15_days, inv_after_custord_cal_1, inv_qty_cum_sum, inv_qty_cum_sum_cal, inv_qty_cum_sum_cal_2) -> b
+
+b %>% 
+  dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
+                                                 ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
+                inv_after_custord_case2 = ifelse(ref != dummy_ref & days_left_on_ssl > 0, sum_of_inventory_qty - total_custord_within_15_days, 
+                                                 ifelse(dummy_days_left_on_ssl > 0, inv_qty_cum_sum - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)))
+
+a %>% filter(ref == "381_22504MRE") %>% select(ref, dummy_ref, dummy_days_left_on_ssl, days_left_on_ssl, sum_of_inventory_qty, total_custord_within_15_days, inv_after_custord_cal_1, inv_qty_cum_sum, inv_qty_cum_sum_cal, inv_qty_cum_sum_cal_2) -> b
+b %>% 
+  dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
+                                                 ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
+                inv_after_custord_case2 = ifelse(ref != dummy_ref & days_left_on_ssl > 0, sum_of_inventory_qty - total_custord_within_15_days, 
+                                                 ifelse(dummy_days_left_on_ssl > 0, inv_qty_cum_sum - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)))
+
+a %>% filter(ref == "75_18525JFM") %>% select(ref, dummy_ref, dummy_days_left_on_ssl, days_left_on_ssl, sum_of_inventory_qty, total_custord_within_15_days, inv_after_custord_cal_1, inv_qty_cum_sum, inv_qty_cum_sum_cal, inv_qty_cum_sum_cal_2) -> b
+b %>% 
+  dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
+                                                 ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
+                inv_after_custord_case2 = ifelse(ref != dummy_ref & days_left_on_ssl > 0, sum_of_inventory_qty - total_custord_within_15_days, 
+                                                 ifelse(dummy_days_left_on_ssl > 0, inv_qty_cum_sum - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)))
+
+
+
+
+
+a %>% filter(ref == "43_13440HVR") %>% select(ref, dummy_ref, dummy_days_left_on_ssl, days_left_on_ssl, sum_of_inventory_qty, total_custord_within_15_days, inv_after_custord_cal_1, inv_qty_cum_sum, inv_qty_cum_sum_cal, inv_qty_cum_sum_cal_2, dummy_inv_after_custord_cal_1) -> b
+b %>% 
+  dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
+                                                 ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
+                inv_after_custord_case2 = ifelse(ref != dummy_ref & days_left_on_ssl > 0, sum_of_inventory_qty - total_custord_within_15_days, 
+                                                 ifelse(dummy_days_left_on_ssl > 0, inv_qty_cum_sum - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
+                inv_after_custord_case3 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
+                                                 ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, dummy_inv_after_custord_cal_1  - total_custord_within_15_days)))
+
+
+
+
+
+
+a %>% filter(ref == "208_21719WFS") %>% select(ref, dummy_ref, dummy_days_left_on_ssl, days_left_on_ssl, sum_of_inventory_qty, total_custord_within_15_days, inv_after_custord_cal_1, inv_qty_cum_sum, inv_qty_cum_sum_cal, inv_qty_cum_sum_cal_2) -> b
+b %>% 
+  dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
+                                                 ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
+                inv_after_custord_case2 = ifelse(ref != dummy_ref & days_left_on_ssl > 0, sum_of_inventory_qty - total_custord_within_15_days, 
+                                                 ifelse(dummy_days_left_on_ssl > 0, inv_qty_cum_sum - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)))
+
+
+###################################################################
+
+analysis_ref.2 %>% 
+  plyr::ddply("ref", transform, inv_qty_cum_sum = cumsum(sum_of_inventory_qty)) %>% 
+  dplyr::mutate(inv_after_custord_cal_1 = ifelse(days_left_on_ssl <= 0, 0, sum_of_inventory_qty)) %>% 
+  plyr::ddply("ref", transform, inv_qty_cum_sum_cal = cumsum(inv_after_custord_cal_1)) -> a
+
+
+inv_after_custord_cal_1 <- NA
+data.frame(inv_after_custord_cal_1) -> dummy_5
+a %>% 
+  dplyr::select(inv_after_custord_cal_1) -> dummy_6
+
+rbind(dummy_5, dummy_6) -> dummy_7
+rm(dummy_5, dummy_6)
+
+dummy_7 %>% 
+  dplyr::slice(1:nrow(dummy_7) -1) %>% 
+  dplyr::rename(dummy_inv_after_custord_cal_1 = inv_after_custord_cal_1) -> dummy_7
+
+a %>% 
+  dplyr::arrange(index) %>% 
+  dplyr::bind_cols(dummy_7) %>% 
+  dplyr::relocate(dummy_inv_after_custord_cal_1, .after = inv_after_custord_cal_1) %>% 
+  dplyr::mutate(inv_qty_cum_sum_cal_2 = dummy_inv_after_custord_cal_1 - inv_after_custord_cal_1) -> a
 
 
 # Inv after Custord
