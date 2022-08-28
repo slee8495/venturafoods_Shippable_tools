@@ -329,7 +329,7 @@ sum(analysis_ref.2$inv_after_custord)
 # 10_12311BSG
 # 36_71722SYS
 
-# In Excel, there are column with R Test with "N" and "N/A". 
+# In Excel, there are column with R Test with "N" and "N/A". (Check if the Lot # is the issue before get into detail)
 
 ###################################################################
 
