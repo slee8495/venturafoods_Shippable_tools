@@ -63,7 +63,7 @@ custord %>%
                 sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
-  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-4 + 15, "Y", "N")) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-5 + 15, "Y", "N")) %>% 
   dplyr::filter(date_2 == "Y") %>% 
   dplyr::select(-date_2) %>% 
   dplyr::mutate(open_order_cases = replace(open_order_cases, is.na(open_order_cases), 0)) -> custord
@@ -163,7 +163,7 @@ colnames_fcst_pivot %>%
                 last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date()+4,
+  dplyr::mutate(days = last_day - Sys.Date()+5,
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
@@ -212,7 +212,7 @@ analysis_ref.2 %>%
 
 # Days left on expired
 analysis_ref.2 %>% 
-  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+4,
+  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+5,
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
 
@@ -294,6 +294,26 @@ analysis_ref.2 %>%
   plyr::ddply("ref", transform, inv_qty_cum_sum_cal = cumsum(inv_after_custord_cal_1)) %>% 
   dplyr::mutate(inv_qty_cum_sum_cal_2 = inv_qty_cum_sum_cal - total_custord_within_15_days) -> analysis_ref.2
 
+# dummy_inv_qty_cum_sum
+inv_qty_cum_sum <- "NA"
+data.frame(inv_qty_cum_sum) -> dummy_8
+
+analysis_ref.2 %>% 
+  dplyr::select(inv_qty_cum_sum) -> dummy_9
+
+rbind(dummy_8, dummy_9) -> dummy_10
+rm(dummy_8, dummy_9)
+rm(inv_qty_cum_sum)
+
+
+dummy_10 %>% 
+  dplyr::slice(1:nrow(dummy_10) -1) %>% 
+  dplyr::rename(dummy_inv_qty_cum_sum = inv_qty_cum_sum) -> dummy_10
+
+analysis_ref.2 %>% 
+  dplyr::arrange(index) %>% 
+  dplyr::bind_cols(dummy_10) -> analysis_ref.2
+
 analysis_ref.2 %>% 
   dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
                                                  ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
@@ -307,9 +327,14 @@ analysis_ref.2 %>%
   dplyr::rename(inv_after_custord = inv_after_custord_case2) -> analysis_ref.2
 
 
+
+
+
 analysis_ref.2 %>% filter(is.na(inv_after_custord))
-analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord) %>% filter(ref == "10_45531CHP")
+analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord) %>% filter(ref == "10_12311PIG")
+analysis_ref.2 %>% filter(ref == "10_12311PIG")
 sum(analysis_ref.2$inv_after_custord)
+
 
 
 ######################### Testing #################################
