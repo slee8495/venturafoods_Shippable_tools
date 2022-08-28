@@ -28,7 +28,8 @@ inv_lot_details %>%
                 expiration_date = as.Date(expiration_date, origin = "1899-12-30"),
                 last_purchase_price = round(last_purchase_price, 2)) %>% 
   data.frame() %>% 
-  dplyr::rename(days_to_past_ssl = calculated_days_left_to_ship) -> inv_lot_details
+  dplyr::rename(days_to_past_ssl = calculated_days_left_to_ship) %>% 
+  dplyr::mutate(inventory_qty_cases = replace(inventory_qty_cases, is.na(inventory_qty_cases), 0)) -> inv_lot_details
 
 # supply_pivot 
 inv_lot_details %>% 
@@ -42,7 +43,7 @@ as.data.frame(analysis_ref.2) -> analysis_ref.2
 
 analysis_ref.2 %>%
   dplyr::arrange(ref, expiration_date) %>% 
-  dplyr::mutate(index = dplyr::row_number()) %>% 
+  dplyr::mutate(index = dplyr::row_number()) %>%
   dplyr::relocate(index) -> analysis_ref.2
   
 # (Path revision Needed) Custord ----
@@ -187,6 +188,7 @@ fcst_pivot %>%
 
 ##################################### ETL ####################################
 
+
 # Planner #
 merge(analysis_ref.2, exception_planner[, c("ref", "planner_number")], by = "ref", all.x = TRUE) %>% 
   dplyr::relocate(planner_number, .after = description) %>% 
@@ -284,38 +286,8 @@ analysis_ref.2 %>%
   dplyr::mutate(diff_factor = ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, days_left_on_ssl - dummy_days_left_on_ssl, 0)) %>% 
   dplyr::relocate(diff_factor, .after = inventory_in_cost) -> analysis_ref.2
 
-######################### Teseting #################################
 
-# 10_12497LOU
-# 30_21725WFS
-# 381_22504MRE
-# 75_18525JFM
-# 208_21719WFS  # Lot# Order
-# 43_13440HVR
-# 75_13152LOU
-# 86_23024WEN
-
-# 
-# a %>% filter(ref == "86_23024WEN") %>% select(ref, dummy_ref, dummy_days_left_on_ssl, days_left_on_ssl, sum_of_inventory_qty, total_custord_within_15_days, inv_after_custord_cal_1, inv_qty_cum_sum, inv_qty_cum_sum_cal, inv_qty_cum_sum_cal_2) -> b
-# b %>% 
-#   dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
-#                                                  ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
-#                 inv_after_custord_case2 = ifelse(total_custord_within_15_days == 0, sum_of_inventory_qty, 
-#                                                  ifelse(ref != dummy_ref & days_left_on_ssl <= 0, sum_of_inventory_qty,
-#                                                  ifelse(ref != dummy_ref & days_left_on_ssl > 0, inv_qty_cum_sum - total_custord_within_15_days,
-#                                                         ifelse(ref == dummy_ref & days_left_on_ssl <= 0, sum_of_inventory_qty,
-#                                                                ifelse(ref == dummy_ref & dummy_days_left_on_ssl <= 0 & days_left_on_ssl > 0, inv_qty_cum_sum_cal - total_custord_within_15_days, 
-#                                                                       ifelse(ref == dummy_ref & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0,
-#                                                                              inv_qty_cum_sum_cal_2 , NA))))))) %>% 
-#   dplyr::rename(inv_after_custord = inv_after_custord_case2)
-# 
-# 
-
-# There are few more cases to build.. look for NA values on inv_after_custord
-
-
-###################################################################
-
+# Inv after Custord
 analysis_ref.2 %>% 
   plyr::ddply("ref", transform, inv_qty_cum_sum = cumsum(sum_of_inventory_qty)) %>% 
   dplyr::mutate(inv_after_custord_cal_1 = ifelse(days_left_on_ssl <= 0, 0, sum_of_inventory_qty)) %>% 
@@ -336,6 +308,31 @@ analysis_ref.2 %>%
 
 
 analysis_ref.2 %>% filter(is.na(inv_after_custord))
+analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord) %>% filter(ref == "10_45531CHP")
+sum(analysis_ref.2$inv_after_custord)
+
+
+######################### Testing #################################
+
+# 10_12497LOU
+# 30_21725WFS
+# 381_22504MRE
+# 75_18525JFM
+# 208_21719WFS  # Lot# Order
+# 43_13440HVR
+# 75_13152LOU
+# 86_23024WEN
+# 36_17720CGS
+# 86_22702SCR
+# 25_20684GOV
+# 55_23528VEN
+# 10_12311BSG
+# 36_71722SYS
+
+# In Excel, there are column with R Test with "N" and "N/A". 
+
+###################################################################
+
 
 # Ending Inv After CustOrd
 analysis_ref.2 %>% 
