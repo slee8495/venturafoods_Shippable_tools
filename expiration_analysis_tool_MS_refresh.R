@@ -63,7 +63,7 @@ custord %>%
                 sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
-  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-5 + 15, "Y", "N")) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-6 + 15, "Y", "N")) %>% 
   dplyr::filter(date_2 == "Y") %>% 
   dplyr::select(-date_2) %>% 
   dplyr::mutate(open_order_cases = replace(open_order_cases, is.na(open_order_cases), 0)) -> custord
@@ -163,7 +163,7 @@ colnames_fcst_pivot %>%
                 last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date()+5,
+  dplyr::mutate(days = last_day - Sys.Date()+6,
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
@@ -212,7 +212,7 @@ analysis_ref.2 %>%
 
 # Days left on expired
 analysis_ref.2 %>% 
-  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+5,
+  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+6,
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
 
@@ -315,6 +315,11 @@ analysis_ref.2 %>%
   dplyr::bind_cols(dummy_10) -> analysis_ref.2
 
 analysis_ref.2 %>% 
+  dplyr::mutate(dummy_inv_qty_cum_sum = as.numeric(dummy_inv_qty_cum_sum),
+                dummy_cumsum_minus_total_custord = dummy_inv_qty_cum_sum - total_custord_within_15_days) -> analysis_ref.2
+  
+
+analysis_ref.2 %>% 
   dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
                                                  ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
                 inv_after_custord_case2 = ifelse(total_custord_within_15_days == 0, sum_of_inventory_qty, 
@@ -322,17 +327,19 @@ analysis_ref.2 %>%
                                                         ifelse(ref != dummy_ref & days_left_on_ssl > 0, inv_qty_cum_sum - total_custord_within_15_days,
                                                                ifelse(ref == dummy_ref & days_left_on_ssl <= 0, sum_of_inventory_qty,
                                                                       ifelse(ref == dummy_ref & dummy_days_left_on_ssl <= 0 & days_left_on_ssl > 0, inv_qty_cum_sum_cal - total_custord_within_15_days, 
-                                                                             ifelse(ref == dummy_ref & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0,
-                                                                                    inv_qty_cum_sum_cal_2 , NA))))))) %>% 
+                                                                             ifelse(ref == dummy_ref & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0,
+                                                                                           sum_of_inventory_qty,
+                                                                                    ifelse(ref == dummy_ref & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord <= 0,
+                                                                                           inv_qty_cum_sum_cal_2, NA)))))))) %>% 
   dplyr::rename(inv_after_custord = inv_after_custord_case2) -> analysis_ref.2
 
-
+ 
 
 
 
 analysis_ref.2 %>% filter(is.na(inv_after_custord))
 analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord) %>% filter(ref == "10_12311PIG")
-analysis_ref.2 %>% filter(ref == "10_12311PIG")
+analysis_ref.2a %>% filter(ref == "10_16071VST")
 sum(analysis_ref.2$inv_after_custord)
 
 
@@ -353,6 +360,7 @@ sum(analysis_ref.2$inv_after_custord)
 # 55_23528VEN
 # 10_12311BSG
 # 36_71722SYS
+# 10_16071VST   # Log# Order
 
 # In Excel, there are column with R Test with "N" and "N/A". (Check if the Lot # is the issue before get into detail)
 
