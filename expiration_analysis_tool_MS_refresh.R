@@ -344,7 +344,7 @@ analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_cust
 analysis_ref.2 %>% filter(ref == "208_21719WFS")
 sum(analysis_ref.2$inv_after_custord)
 
-# In Excel, there are column with R Test with "N" and "N/A". (Check if the Lot # is the issue before get into detail)
+# In Excel in the folder test 4, there are column with R Test with "N" and "N/A". (Check if the Lot # is the issue before get into detail)
 
 ###################################################################
 
