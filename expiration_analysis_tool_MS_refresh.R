@@ -63,7 +63,7 @@ custord %>%
                 sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
-  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-6 + 15, "Y", "N")) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-8 + 15, "Y", "N")) %>% 
   dplyr::filter(date_2 == "Y") %>% 
   dplyr::select(-date_2) %>% 
   dplyr::mutate(open_order_cases = replace(open_order_cases, is.na(open_order_cases), 0)) -> custord
@@ -126,7 +126,7 @@ iom_mbx %>%
 
 
 # (Path revision Needed) fcst ----
-fcst <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.08.23.xlsx")
+fcst <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/2022/DSX Forecast Backup - 2022.08.23.xlsx")
 
 fcst[-1, ] -> fcst
 colnames(fcst) <- fcst[1, ]
@@ -163,7 +163,7 @@ colnames_fcst_pivot %>%
                 last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date()+6,
+  dplyr::mutate(days = last_day - Sys.Date()+8,
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
@@ -212,7 +212,7 @@ analysis_ref.2 %>%
 
 # Days left on expired
 analysis_ref.2 %>% 
-  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+6,
+  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+8,
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
 
@@ -337,30 +337,12 @@ analysis_ref.2 %>%
 
 
 
-analysis_ref.2 %>% filter(is.na(inv_after_custord))
-analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord) %>% filter(ref == "10_12311PIG")
-analysis_ref.2a %>% filter(ref == "10_16071VST")
-sum(analysis_ref.2$inv_after_custord)
-
 
 
 ######################### Testing #################################
-
-# 10_12497LOU
-# 30_21725WFS
-# 381_22504MRE
-# 75_18525JFM
-# 208_21719WFS  # Lot# Order
-# 43_13440HVR
-# 75_13152LOU
-# 86_23024WEN
-# 36_17720CGS
-# 86_22702SCR
-# 25_20684GOV
-# 55_23528VEN
-# 10_12311BSG
-# 36_71722SYS
-# 10_16071VST   # Log# Order
+analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord) %>% filter(ref == "10_12311PIG")
+analysis_ref.2 %>% filter(ref == "208_21719WFS")
+sum(analysis_ref.2$inv_after_custord)
 
 # In Excel, there are column with R Test with "N" and "N/A". (Check if the Lot # is the issue before get into detail)
 
@@ -369,7 +351,7 @@ sum(analysis_ref.2$inv_after_custord)
 
 # Ending Inv After CustOrd
 analysis_ref.2 %>% 
-  dplyr::mutate(ending_inv_after_custord = ifelse(inv_after_custord < 0, 0, inv_after_custord)) -> analysis_ref.2
+  dplyr::mutate(ending_inv_after_custord = ifelse(inv_after_custord <= 0, 0, inv_after_custord)) -> analysis_ref.2
 
 # Ending Inv After CustOrd in $
 analysis_ref.2 %>% 
@@ -406,7 +388,7 @@ analysis_ref.2 %>%
 
 
 
-# testing
+##################################################################### testing
 analysis_ref.2 %>% 
   dplyr::select(ref, location, sku, description, planner_number, planner_name, lot_number, days_left_on_ssl, days_left_on_expired,
                 expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
@@ -415,29 +397,8 @@ analysis_ref.2 %>%
                 ending_inv_after_custord_and_fcst_in_Cost) -> aa
 
 
-sum(aa$sum_of_inventory_qty, na.rm = T)  # match
-sum(aa$total_custord_within_15_days)   # match
-sum(aa$ending_inv_after_custord, na.rm = T)  # This one didn't match..
-sum(aa$ending_inv_after_custord_in_cost, na.rm = T)  # This one didn't match..
 
 
-
-# Let's try to match this one for Inv_after_custord (There's an error)
-aa %>% filter(ref == "10_12497LOU")
-
-aa %>% filter(ref == "30_21725WFS")
-
-aa %>% filter(ref == "30_21725WFS")
-
-aa %>% filter(ref == "43_13440HVR")
-
-aa %>% filter(ref == "381_22504MRE")
-
-aa %>% filter(ref == "75_18525JFM")
-
-aa %>% filter(ref == "208_21719WFS")
-
-#
 
 
 ##### Don't forget with the Sys.Date() 
