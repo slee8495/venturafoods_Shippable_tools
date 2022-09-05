@@ -1,3 +1,5 @@
+################################# DON'T FORGET WITH SYS.DATE() ###############################
+
 library(tidyverse)
 library(magrittr)
 library(openxlsx)
@@ -312,6 +314,11 @@ analysis_ref.2 %>%
 
 # Inv after Custord
 analysis_ref.2 %>% 
+  dplyr::rename(sum_of_inventory_qty_w_neg = sum_of_inventory_qty) %>% 
+  dplyr::mutate(sum_of_inventory_qty = ifelse(sum_of_inventory_qty_w_neg < 0, 0, sum_of_inventory_qty_w_neg)) -> analysis_ref.2
+
+
+analysis_ref.2 %>% 
   plyr::ddply("ref", transform, inv_qty_cum_sum = cumsum(sum_of_inventory_qty)) %>% 
   dplyr::mutate(inv_after_custord_cal_1 = ifelse(days_left_on_ssl <= 0, 0, sum_of_inventory_qty)) %>% 
   plyr::ddply("ref", transform, inv_qty_cum_sum_cal = cumsum(inv_after_custord_cal_1)) %>% 
@@ -365,7 +372,8 @@ analysis_ref.2 %>%
   dplyr::arrange(index) %>% 
   dplyr::bind_cols(dummy_18) %>% 
   dplyr::relocate(inv_qty_cum_sum_cal_2_dummy, .after = inv_qty_cum_sum_cal_2) -> analysis_ref.2
-  
+
+
 
 # inv_after_custord_algorithm
 
@@ -382,21 +390,20 @@ analysis_ref.2 %>%
                                                                                     ifelse(ref == dummy_ref & ref != dummy_ref_2 & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0 & inv_qty_cum_sum_cal_2_dummy <= 0,
                                                                                            inv_qty_cum_sum_cal_2,
                                                                                     ifelse(ref == dummy_ref & ref == dummy_ref_2 & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0,
-                                                                                           sum_of_inventory_qty + inv_qty_cum_sum_cal_2_dummy, 
+                                                                                           inv_after_custord_cal_1 , 
                                                                                     ifelse(ref == dummy_ref & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord <= 0,
                                                                                            inv_qty_cum_sum_cal_2, NA)))))))))) %>% 
-  dplyr::rename(inv_after_custord = inv_after_custord_case2) -> b
+  dplyr::rename(inv_after_custord = inv_after_custord_case2) -> analysis_ref.2
 
 
 analysis_ref.2
 
 
 ######################### Testing #################################
-b %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord_case1, inv_after_custord) %>% filter(ref == "260_20397EBQ")
-b %>% filter(ref == "260_20397EBQ")
+analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord_case1, inv_after_custord) %>% filter(ref == "10_19194PIG")
+analysis_ref.2 %>% filter(ref == "260_20397EBQ")
 
-sum(b$inv_after_custord)
-
+sum(analysis_ref.2$inv_after_custord)
 
 
 # Linda's file error
