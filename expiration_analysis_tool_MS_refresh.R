@@ -65,7 +65,7 @@ custord %>%
                 sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
-  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-13 + 15, "Y", "N")) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-20 + 15, "Y", "N")) %>% 
   dplyr::filter(date_2 == "Y") %>% 
   dplyr::select(-date_2) %>% 
   dplyr::mutate(open_order_cases = replace(open_order_cases, is.na(open_order_cases), 0)) -> custord
@@ -165,7 +165,7 @@ colnames_fcst_pivot %>%
                 last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date()+13,
+  dplyr::mutate(days = last_day - Sys.Date()+20,
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
@@ -214,7 +214,7 @@ analysis_ref.2 %>%
 
 # Days left on expired
 analysis_ref.2 %>% 
-  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+13,
+  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+20,
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
 
@@ -402,6 +402,7 @@ analysis_ref.2
 ######################### Testing #################################
 analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord_case1, inv_after_custord) %>% filter(ref == "10_19194PIG")
 analysis_ref.2 %>% filter(ref == "260_20397EBQ")
+analysis_ref.2 %>% filter(ref == "10_19194PIG") %>% select(ending_inv_after_custord)
 
 sum(analysis_ref.2$inv_after_custord)
 
@@ -410,7 +411,8 @@ sum(analysis_ref.2$inv_after_custord)
 # 36-20776SCR: This one, Expiration date in Linda's file reversed
 # 260_20397EBQ: good example of sum_of_inventory (-) value
 
-# my thought: (-) shouldn't be considered in the data. it should be removed completely beforehand. 
+# sum_of_inventory remains as it is for (-) ones as well. -> create another column for it, and work on that -> change the column name and delete all after the calculation
+# Look at Linda's excel file. work on n. 
 
 
 
@@ -467,8 +469,8 @@ analysis_ref.2 %>%
                 ending_inv_after_custord_and_fcst_in_Cost) -> aa
 
 
-
-
+aa %>% filter(ref == "10_12522LOU" & lot_number == "Z13822046")
+writexl::write_xlsx(aa, "test.xlsx")
 
 
 ##### Don't forget with the Sys.Date() 
