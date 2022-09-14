@@ -461,24 +461,13 @@ analysis_ref.2 %>%
 
 
 
-##################################################################### testing
-analysis_ref.2 %>% 
-  dplyr::select(ref, location, sku, description, planner_number, planner_name, lot_number, days_left_on_ssl, days_left_on_expired,
-                expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
-                diff_factor, total_custord_within_15_days, inv_after_custord, ending_inv_after_custord, ending_inv_after_custord_in_cost,
-                fcst_daily_avg_after_15_days, consumption_factor, inv_after_custord_and_fcst, ending_inv_after_custord_and_fcst,
-                ending_inv_after_custord_and_fcst_in_Cost) -> aa
-
-
-aa %>% filter(ref == "10_12522LOU" & lot_number == "Z13822046")
-writexl::write_xlsx(aa, "test.xlsx")
-
-
-##### Don't forget with the Sys.Date() 
-
 ##################################################################################################################################################
 #################################################################### final touch #################################################################
 ##################################################################################################################################################
+
+analysis_ref.2 %>% 
+  dplyr::select(-sum_of_inventory_qty) %>% 
+  dplyr::rename(sum_of_inventory_qty = sum_of_inventory_qty_w_neg) -> analysis_ref.2
 
 
 analysis_ref.2 %>% 
@@ -489,8 +478,8 @@ analysis_ref.2 %>%
                 ending_inv_after_custord_and_fcst_in_Cost) -> final_analysis_result
 
 
-analysis_ref.2 %>% 
-  dplyr::mutate(ref = gsub("_", "-", ref)) -> analysis_ref.2
+final_analysis_result %>% 
+  dplyr::mutate(ref = gsub("_", "-", ref)) -> final_analysis_result
 
 
 colnames(final_analysis_result)[1]<-"ref"
