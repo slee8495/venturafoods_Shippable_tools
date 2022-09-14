@@ -390,7 +390,7 @@ analysis_ref.2 %>%
                                                                                     ifelse(ref == dummy_ref & ref != dummy_ref_2 & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0 & inv_qty_cum_sum_cal_2_dummy <= 0,
                                                                                            inv_qty_cum_sum_cal_2,
                                                                                     ifelse(ref == dummy_ref & ref == dummy_ref_2 & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0,
-                                                                                           inv_after_custord_cal_1 , 
+                                                                                           inv_qty_cum_sum_cal_2, 
                                                                                     ifelse(ref == dummy_ref & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord <= 0,
                                                                                            inv_qty_cum_sum_cal_2, NA)))))))))) %>% 
   dplyr::rename(inv_after_custord = inv_after_custord_case2) -> analysis_ref.2
@@ -399,31 +399,32 @@ analysis_ref.2 %>%
 analysis_ref.2
 
 
-######################### Testing #################################
-analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord_case1, inv_after_custord) %>% filter(ref == "10_19194PIG")
-analysis_ref.2 %>% filter(ref == "260_20397EBQ")
-analysis_ref.2 %>% filter(ref == "10_19194PIG") %>% select(ending_inv_after_custord)
-
-sum(analysis_ref.2$inv_after_custord)
-
-
-# Linda's file error
-# 36-20776SCR: This one, Expiration date in Linda's file reversed
-# 260_20397EBQ: good example of sum_of_inventory (-) value
-
-# sum_of_inventory remains as it is for (-) ones as well. -> create another column for it, and work on that -> change the column name and delete all after the calculation
-# Look at Linda's excel file. work on n. 
-
-
-
-# In Excel in the folder test 4, there are column with R Test with "N" and "N/A". (Check if the Lot # is the issue before get into detail)
-
-###################################################################
-
 
 # Ending Inv After CustOrd
 analysis_ref.2 %>% 
   dplyr::mutate(ending_inv_after_custord = ifelse(inv_after_custord <= 0, 0, inv_after_custord)) -> analysis_ref.2
+
+
+
+######################### Testing #################################
+analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord_case1, inv_after_custord) %>% filter(ref == "10_19194PIG")
+analysis_ref.2 %>% filter(ref == "30_22039YUM")
+analysis_ref.2 %>% filter(ref == "309_22417PUB") %>% select(inv_after_custord, ending_inv_after_custord)
+
+sum(analysis_ref.2$ending_inv_after_custord)
+
+
+
+
+# sum_of_inventory remains as it is for (-) ones as well. -> create another column for it, and work on that -> change the column name and delete all after the calculation
+# Look at Linda's excel file. work on n. 
+
+# 36-20776SCR, 75-72898SYS: These are still expiration date order reversed
+
+
+###################################################################
+
+
 
 # Ending Inv After CustOrd in $
 analysis_ref.2 %>% 
