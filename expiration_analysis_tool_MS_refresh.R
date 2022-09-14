@@ -65,7 +65,7 @@ custord %>%
                 sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
-  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-20 + 15, "Y", "N")) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-21 + 15, "Y", "N")) %>% 
   dplyr::filter(date_2 == "Y") %>% 
   dplyr::select(-date_2) %>% 
   dplyr::mutate(open_order_cases = replace(open_order_cases, is.na(open_order_cases), 0)) -> custord
@@ -165,7 +165,7 @@ colnames_fcst_pivot %>%
                 last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date()+20,
+  dplyr::mutate(days = last_day - Sys.Date()+21,
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
@@ -214,7 +214,7 @@ analysis_ref.2 %>%
 
 # Days left on expired
 analysis_ref.2 %>% 
-  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+20,
+  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+21,
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
 
