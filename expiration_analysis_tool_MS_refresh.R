@@ -406,26 +406,6 @@ analysis_ref.2 %>%
 
 
 
-######################### Testing #################################
-analysis_ref.2 %>% select(ref, diff_factor, sum_of_inventory_qty, inv_after_custord_case1, inv_after_custord) %>% filter(ref == "10_19194PIG")
-analysis_ref.2 %>% filter(ref == "30_22039YUM")
-analysis_ref.2 %>% filter(ref == "309_22417PUB") %>% select(inv_after_custord, ending_inv_after_custord)
-
-sum(analysis_ref.2$ending_inv_after_custord)
-
-
-
-
-# sum_of_inventory remains as it is for (-) ones as well. -> create another column for it, and work on that -> change the column name and delete all after the calculation
-# Look at Linda's excel file. work on n. 
-
-# 36-20776SCR, 75-72898SYS: These are still expiration date order reversed
-
-
-###################################################################
-
-
-
 # Ending Inv After CustOrd in $
 analysis_ref.2 %>% 
   dplyr::mutate(ending_inv_after_custord_in_cost = ending_inv_after_custord * unit_cost) -> analysis_ref.2
@@ -437,11 +417,11 @@ merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = 
   dplyr::rename(fcst_daily_avg_after_15_days = fcst_daily) %>% 
   dplyr::mutate(fcst_daily_avg_after_15_days = replace(fcst_daily_avg_after_15_days, is.na(fcst_daily_avg_after_15_days), 0)) -> analysis_ref.2
 
-# Consumption Factor
+# Consumption Factor 
 analysis_ref.2 %>% 
-  dplyr::mutate(consumption_factor = ifelse(days_left_on_ssl <= 15, 0,
-                                            ifelse(diff_factor == 0, fcst_daily_avg_after_15_days * (days_left_on_ssl - 15), 
-                                                   fcst_daily_avg_after_15_days * diff_factor))) -> analysis_ref.2
+  dplyr::mutate(consumption_factor = ifelse(days_left_on_ssl <= 15, 0, 
+                                            ifelse(diff_factor == 0, 
+                                                   ifelse(dummy_ref == ref, 0, (days_left_on_ssl-15)), diff_factor) * fcst_daily_avg_after_15_days)) -> analysis_ref.2
 
 
 # Inv after Custord & Fcst
@@ -449,6 +429,7 @@ analysis_ref.2 %>%
   dplyr::mutate(inv_after_custord_and_fcst = ifelse(days_left_on_ssl <= 0, 
                                                     ending_inv_after_custord, 
                                                     ending_inv_after_custord - consumption_factor)) -> analysis_ref.2
+
 
 # Ending Inv after Custord & Fcst
 analysis_ref.2 %>% 
@@ -458,6 +439,15 @@ analysis_ref.2 %>%
 # Ending Inv after Custord & Fcst in $
 analysis_ref.2 %>% 
   dplyr::mutate(ending_inv_after_custord_and_fcst_in_Cost = ending_inv_after_custord_and_fcst * unit_cost) -> analysis_ref.2
+
+
+# Consumption Factor 
+analysis_ref.2 %>% 
+  dplyr::mutate(consumption_factor = ifelse(days_left_on_ssl < 15, 0, 
+                                            ifelse(diff_factor == 0, 
+                                                   ifelse(dummy_ref == ref, 0, (days_left_on_ssl-15)), diff_factor) * fcst_daily_avg_after_15_days))
+
+
 
 
 
