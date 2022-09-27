@@ -436,6 +436,10 @@ analysis_ref.2 %>%
 #### test - right here! y dummy...??
 # challenge: how to get y3 here...?
 
+# if you failed finally... 
+# things to do is.. just put the calculation itself. 
+# in excel, run the calculator. (this should be the best way to do)
+
 ###
 
 
