@@ -44,7 +44,7 @@ supply_pivot -> analysis_ref.2
 as.data.frame(analysis_ref.2) -> analysis_ref.2
 
 analysis_ref.2 %>%
-  dplyr::arrange(ref, expiration_date) %>% 
+  dplyr::arrange(ref, calculated_shippable_date) %>% 
   dplyr::mutate(index = dplyr::row_number()) %>%
   dplyr::relocate(index) -> analysis_ref.2
   
@@ -65,7 +65,7 @@ custord %>%
                 sales_order_requested_ship_date = as.Date(sales_order_requested_ship_date, origin = "1899-12-30"),
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
-  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date()-21 + 15, "Y", "N")) %>% 
+  dplyr::mutate(date_2 = ifelse(sales_order_requested_ship_date < Sys.Date() + 15, "Y", "N")) %>% 
   dplyr::filter(date_2 == "Y") %>% 
   dplyr::select(-date_2) %>% 
   dplyr::mutate(open_order_cases = replace(open_order_cases, is.na(open_order_cases), 0)) -> custord
@@ -165,7 +165,7 @@ colnames_fcst_pivot %>%
                 last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date()+21,
+  dplyr::mutate(days = last_day - Sys.Date(),
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
@@ -214,7 +214,7 @@ analysis_ref.2 %>%
 
 # Days left on expired
 analysis_ref.2 %>% 
-  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date()+21,
+  dplyr::mutate(days_left_on_expired = expiration_date - Sys.Date(),
                 days_left_on_expired = as.numeric(days_left_on_expired)) %>% 
   dplyr::relocate(days_left_on_expired, .after = days_left_on_ssl) -> analysis_ref.2
 
@@ -376,7 +376,6 @@ analysis_ref.2 %>%
 
 
 # inv_after_custord_algorithm
-
 analysis_ref.2 %>% 
   dplyr::mutate(inv_after_custord_case1 = ifelse(ref != dummy_ref & days_left_on_ssl <= 0, inv_qty_cum_sum, 
                                                  ifelse(dummy_days_left_on_ssl <= 0, inv_qty_cum_sum_cal - total_custord_within_15_days, inv_qty_cum_sum_cal - total_custord_within_15_days)),
@@ -389,14 +388,13 @@ analysis_ref.2 %>%
                                                                                     inv_qty_cum_sum_cal_2 - inv_qty_cum_sum_cal_2_dummy,
                                                                                     ifelse(ref == dummy_ref & ref != dummy_ref_2 & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0 & inv_qty_cum_sum_cal_2_dummy <= 0,
                                                                                            inv_qty_cum_sum_cal_2,
-                                                                                    ifelse(ref == dummy_ref & ref == dummy_ref_2 & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0,
-                                                                                           inv_qty_cum_sum_cal_2, 
-                                                                                    ifelse(ref == dummy_ref & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord <= 0,
-                                                                                           inv_qty_cum_sum_cal_2, NA)))))))))) %>% 
+                                                                                           ifelse(ref == dummy_ref & ref == dummy_ref_2 & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0 & inv_qty_cum_sum_cal_2_dummy > 0,
+                                                                                                  inv_after_custord_cal_1,
+                                                                                                  ifelse(ref == dummy_ref & ref == dummy_ref_2 & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord > 0 & inv_qty_cum_sum_cal_2_dummy <= 0,
+                                                                                                         inv_after_custord_case1,
+                                                                                                  ifelse(ref == dummy_ref & dummy_days_left_on_ssl > 0 & days_left_on_ssl > 0 & dummy_cumsum_minus_total_custord <= 0,
+                                                                                                         inv_qty_cum_sum_cal_2, NA))))))))))) %>% 
   dplyr::rename(inv_after_custord = inv_after_custord_case2) -> analysis_ref.2
-
-
-analysis_ref.2
 
 
 
@@ -421,14 +419,24 @@ merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = 
 analysis_ref.2 %>% 
   dplyr::mutate(consumption_factor = ifelse(days_left_on_ssl <= 15, 0, 
                                             ifelse(diff_factor == 0, 
-                                                   ifelse(dummy_ref == ref, 0, (days_left_on_ssl-15)), diff_factor) * fcst_daily_avg_after_15_days)) -> analysis_ref.2
+                                                   ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, 0, (days_left_on_ssl-15)), diff_factor) * fcst_daily_avg_after_15_days)) -> analysis_ref.2
+
 
 
 # Inv after Custord & Fcst
 analysis_ref.2 %>% 
-  dplyr::mutate(inv_after_custord_and_fcst = ifelse(days_left_on_ssl <= 0, 
-                                                    ending_inv_after_custord, 
-                                                    ending_inv_after_custord - consumption_factor)) -> analysis_ref.2
+  dplyr::mutate(inv_after_custord_and_fcst = ifelse(days_left_on_ssl <= 0, sum_of_inventory_qty, 
+                                                    ifelse(ref == dummy_ref, ifelse(days_left_on_ssl <= 15, ending_inv_after_custord, 
+                                                                                    ifelse(Y3 >= 0, 
+                                                                                           ending_inv_after_custord - consumption_factor, 
+                                                                                           Y3 + ending_inv_after_custord - consumption_factor)), 
+                                                           ending_inv_after_custord - consumption_factor))) -> analysis_ref.2
+
+
+#### test - right here! y dummy...??
+# challenge: how to get y3 here...?
+
+###
 
 
 # Ending Inv after Custord & Fcst
@@ -439,14 +447,6 @@ analysis_ref.2 %>%
 # Ending Inv after Custord & Fcst in $
 analysis_ref.2 %>% 
   dplyr::mutate(ending_inv_after_custord_and_fcst_in_Cost = ending_inv_after_custord_and_fcst * unit_cost) -> analysis_ref.2
-
-
-# Consumption Factor 
-analysis_ref.2 %>% 
-  dplyr::mutate(consumption_factor = ifelse(days_left_on_ssl < 15, 0, 
-                                            ifelse(diff_factor == 0, 
-                                                   ifelse(dummy_ref == ref, 0, (days_left_on_ssl-15)), diff_factor) * fcst_daily_avg_after_15_days))
-
 
 
 
