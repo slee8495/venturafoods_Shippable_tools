@@ -510,6 +510,7 @@ rm(dummy_iacf_3, dummy_iacf_u4_x4)
 
 
 # Inv after Custord & Fcst algorhitm
+############################################ loop 100 times #########################################
 
 analysis_ref.2 %>% 
   dplyr::mutate(iacf_1 = ifelse(days_left_on_ssl <= 0, iacf_p4,
@@ -523,12 +524,58 @@ a %>%
   dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
                                 ifelse(ref == dummy_ref,
                                        ifelse(days_left_on_ssl <= 15, iacf_u4,
-                                              ifelse(lead(iacf_1) >= 0, iacf_u4_x4, lead(iacf_1) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
-                                       iacf_u4_x4))) 
+                                              ifelse(lag(iacf_1) >= 0, iacf_u4_x4, lag(iacf_1) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                       iacf_u4_x4))) -> b
 
-a %>% 
-  mutate(test = lag(iacf_1))
 
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                       iacf_u4_x4))) -> b
+
+
+
+b
+
+b %>% 
+  count(ref) %>% arrange(desc(n))
 
 #### test - right here!
 
