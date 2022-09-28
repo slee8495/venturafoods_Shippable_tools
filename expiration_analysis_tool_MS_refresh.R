@@ -519,9 +519,15 @@ analysis_ref.2 %>%
                                      iacf_u4_x4))) -> a
 
 
+a %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lead(iacf_1) >= 0, iacf_u4_x4, lead(iacf_1) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                       iacf_u4_x4))) 
 
-data %>% 
-  dplyr::mutate(new_col = old_col + lead(old_col, default = 0))
+a %>% 
+  mutate(test = lag(iacf_1))
 
 
 #### test - right here!
