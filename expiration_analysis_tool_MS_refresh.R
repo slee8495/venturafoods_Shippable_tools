@@ -516,7 +516,7 @@ analysis_ref.2 %>%
   dplyr::mutate(iacf_1 = ifelse(days_left_on_ssl <= 0, iacf_p4,
                               ifelse(ref == dummy_ref,
                                      ifelse(days_left_on_ssl <= 15, iacf_u4,
-                                            ifelse(dummy_iacf_p4 >= 0, iacf_u4_x4, dummy_iacf_p4 + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                            ifelse(dummy_iacf_p4 >= 0, iacf_u4_x4, dummy_iacf_p4 + iacf_u4_x4)), 
                                      iacf_u4_x4))) -> a
 
 
@@ -524,7 +524,7 @@ a %>%
   dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
                                 ifelse(ref == dummy_ref,
                                        ifelse(days_left_on_ssl <= 15, iacf_u4,
-                                              ifelse(lag(iacf_1) >= 0, iacf_u4_x4, lag(iacf_1) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                              ifelse(lag(iacf_1) >= 0, iacf_u4_x4, lag(iacf_1) + iacf_u4_x4)),  
                                        iacf_u4_x4))) -> b
 
 
@@ -532,7 +532,7 @@ b %>%
   dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
                                 ifelse(ref == dummy_ref,
                                        ifelse(days_left_on_ssl <= 15, iacf_u4,
-                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
                                        iacf_u4_x4))) -> b
 
 
@@ -540,7 +540,7 @@ b %>%
   dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
                                 ifelse(ref == dummy_ref,
                                        ifelse(days_left_on_ssl <= 15, iacf_u4,
-                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
                                        iacf_u4_x4))) -> b
 
 
@@ -549,7 +549,7 @@ b %>%
   dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
                                 ifelse(ref == dummy_ref,
                                        ifelse(days_left_on_ssl <= 15, iacf_u4,
-                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
                                        iacf_u4_x4))) -> b
 
 
@@ -559,7 +559,7 @@ b %>%
   dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
                                 ifelse(ref == dummy_ref,
                                        ifelse(days_left_on_ssl <= 15, iacf_u4,
-                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
                                        iacf_u4_x4))) -> b
 
 
@@ -567,25 +567,821 @@ b %>%
   dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
                                 ifelse(ref == dummy_ref,
                                        ifelse(days_left_on_ssl <= 15, iacf_u4,
-                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
                                        iacf_u4_x4))) -> b
 
 
 
-b
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
 
 b %>% 
-  count(ref) %>% arrange(desc(n))
-
-#### test - right here!
-
-# Think a bit.. and then.. if it's not possible.. just do the excel formula trick. 
-# below two columns should be applied that as well.
-
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
 
 
-###
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
 
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> b
+
+
+b %>% 
+  dplyr::mutate(iacf_2 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                                ifelse(ref == dummy_ref,
+                                       ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                              ifelse(lag(iacf_2) >= 0, iacf_u4_x4, lag(iacf_2) + iacf_u4_x4)), 
+                                       iacf_u4_x4))) -> analysis_ref.2
+
+
+analysis_ref.2 %>% 
+  dplyr::rename(inv_after_custord_and_fcst = iacf_2) -> analysis_ref.2
+
+##################################################################################################################################################
 
 # Ending Inv after Custord & Fcst
 analysis_ref.2 %>% 
