@@ -424,21 +424,18 @@ analysis_ref.2 %>%
 
 
 # Inv after Custord & Fcst
-analysis_ref.2 %>% 
-  dplyr::mutate(inv_after_custord_and_fcst = ifelse(days_left_on_ssl <= 0, sum_of_inventory_qty, 
-                                                    ifelse(ref == dummy_ref, ifelse(days_left_on_ssl <= 15, ending_inv_after_custord, 
-                                                                                    ifelse(Y3 >= 0, 
-                                                                                           ending_inv_after_custord - consumption_factor, 
-                                                                                           Y3 + ending_inv_after_custord - consumption_factor)), 
-                                                           ending_inv_after_custord - consumption_factor))) -> analysis_ref.2
+analysis_ref.2 %>%
+  dplyr::mutate(iacf_p4 = sum_of_inventory_qty,
+                iacf_u4 = ending_inv_after_custord,
+                iacf_u4_minus_x4 = ending_inv_after_custord - consumption_factor)
 
 
-#### test - right here! y dummy...??
-# challenge: how to get y3 here...?
+#### test - right here!
 
-# if you failed finally... 
-# things to do is.. just put the calculation itself. 
-# in excel, run the calculator. (this should be the best way to do)
+# Think a bit.. and then.. if it's not possible.. just do the excel formula trick. 
+# below two columns should be applied that as well.
+
+
 
 ###
 
