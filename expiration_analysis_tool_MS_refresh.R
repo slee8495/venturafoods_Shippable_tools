@@ -373,7 +373,7 @@ analysis_ref.2 %>%
   dplyr::bind_cols(dummy_18) %>% 
   dplyr::relocate(inv_qty_cum_sum_cal_2_dummy, .after = inv_qty_cum_sum_cal_2) -> analysis_ref.2
 
-
+rm(dummy, dummy_10, dummy_14, dummy_17, dummy_18)
 
 # inv_after_custord_algorithm
 analysis_ref.2 %>% 
@@ -427,7 +427,101 @@ analysis_ref.2 %>%
 analysis_ref.2 %>%
   dplyr::mutate(iacf_p4 = sum_of_inventory_qty,
                 iacf_u4 = ending_inv_after_custord,
-                iacf_u4_minus_x4 = ending_inv_after_custord - consumption_factor)
+                iacf_u4_x4 = ending_inv_after_custord - consumption_factor) -> analysis_ref.2
+
+
+
+# iacf dummies - iacf_p4
+iacf_p4 <- "first_row"  
+data.frame(iacf_p4) -> dummy_iacf_1
+
+analysis_ref.2 %>% 
+  dplyr::select(iacf_p4) -> dummy_iacf_2
+
+rbind(dummy_iacf_1, dummy_iacf_2) -> dummy_iacf_3
+rm(dummy_iacf_1, dummy_iacf_2)
+
+rm(iacf_p4)
+
+dummy_iacf_3 %>%
+  dplyr::slice(1:nrow(dummy_iacf_3) -1) %>%
+  dplyr::rename(dummy_iacf_p4 = iacf_p4) %>% 
+  dplyr::mutate(dummy_index_iacf_p4 = dplyr::row_number()) -> dummy_iacf_p4
+
+analysis_ref.2 %>% 
+  dplyr::arrange(index) %>% 
+  dplyr::bind_cols(dummy_iacf_p4) %>% 
+  dplyr::relocate(dummy_index_iacf_p4, .after = index) %>% 
+  dplyr::relocate(dummy_iacf_p4, .after = iacf_p4) -> analysis_ref.2
+
+rm(dummy_iacf_3, dummy_iacf_p4)
+
+# iacf dummies - iacf_u4
+iacf_u4 <- "first_row"  
+data.frame(iacf_u4) -> dummy_iacf_1
+
+analysis_ref.2 %>% 
+  dplyr::select(iacf_u4) -> dummy_iacf_2
+
+rbind(dummy_iacf_1, dummy_iacf_2) -> dummy_iacf_3
+rm(dummy_iacf_1, dummy_iacf_2)
+
+rm(iacf_u4)
+
+dummy_iacf_3 %>%
+  dplyr::slice(1:nrow(dummy_iacf_3) -1) %>%
+  dplyr::rename(dummy_iacf_u4 = iacf_u4) %>% 
+  dplyr::mutate(dummy_index_iacf_u4 = dplyr::row_number()) -> dummy_iacf_u4
+
+analysis_ref.2 %>% 
+  dplyr::arrange(index) %>% 
+  dplyr::bind_cols(dummy_iacf_u4) %>% 
+  dplyr::relocate(dummy_index_iacf_u4, .after = index) %>% 
+  dplyr::relocate(dummy_iacf_u4, .after = iacf_u4) -> analysis_ref.2
+
+rm(dummy_iacf_3, dummy_iacf_u4)
+
+# iacf dummies - iacf_u4_x4
+iacf_u4_x4 <- "first_row"  
+data.frame(iacf_u4_x4) -> dummy_iacf_1
+
+analysis_ref.2 %>% 
+  dplyr::select(iacf_u4_x4) -> dummy_iacf_2
+
+rbind(dummy_iacf_1, dummy_iacf_2) -> dummy_iacf_3
+rm(dummy_iacf_1, dummy_iacf_2)
+
+rm(iacf_u4_x4)
+
+dummy_iacf_3 %>%
+  dplyr::slice(1:nrow(dummy_iacf_3) -1) %>%
+  dplyr::rename(dummy_iacf_u4_x4 = iacf_u4_x4) %>% 
+  dplyr::mutate(dummy_index_iacf_u4_x4 = dplyr::row_number()) -> dummy_iacf_u4_x4
+
+analysis_ref.2 %>% 
+  dplyr::arrange(index) %>% 
+  dplyr::bind_cols(dummy_iacf_u4_x4) %>% 
+  dplyr::relocate(dummy_index_iacf_u4_x4, .after = index) %>% 
+  dplyr::relocate(dummy_iacf_u4_x4, .after = iacf_u4_x4) -> analysis_ref.2
+
+rm(dummy_iacf_3, dummy_iacf_u4_x4)
+
+
+
+
+# Inv after Custord & Fcst algorhitm
+
+analysis_ref.2 %>% 
+  dplyr::mutate(iacf_1 = ifelse(days_left_on_ssl <= 0, iacf_p4,
+                              ifelse(ref == dummy_ref,
+                                     ifelse(days_left_on_ssl <= 15, iacf_u4,
+                                            ifelse(dummy_iacf_p4 >= 0, iacf_u4_x4, dummy_iacf_p4 + iacf_u4_x4)),  # dummy_iacf_p4 is used as "first row" only
+                                     iacf_u4_x4))) -> a
+
+
+
+data %>% 
+  dplyr::mutate(new_col = old_col + lead(old_col, default = 0))
 
 
 #### test - right here!
