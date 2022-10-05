@@ -1,5 +1,3 @@
-################################# DON'T FORGET WITH SYS.DATE() ###############################
-
 library(tidyverse)
 library(magrittr)
 library(openxlsx)
