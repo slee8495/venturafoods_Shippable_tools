@@ -154,20 +154,27 @@ fcst_pivot %>%
 colnames(fcst_pivot) -> colnames_fcst_pivot
 data.frame(colnames_fcst_pivot) -> colnames_fcst_pivot
 
-colnames_fcst_pivot[nrow(colnames_fcst_pivot), ] -> colnames_fcst_pivot
+colnames_fcst_pivot[4, ] -> colnames_fcst_pivot_first_month
+colnames_fcst_pivot[nrow(colnames_fcst_pivot), ] -> colnames_fcst_pivot_last_month
+
+colnames_fcst_pivot_first_month %>% data.frame() -> cfpfm
+colnames_fcst_pivot_last_month %>% data.frame() -> cfplm
+
+cbind(cfpfm, cfplm) -> colnames_fcst_pivot
+
+colnames(colnames_fcst_pivot)[1] <- "first_day"
+colnames(colnames_fcst_pivot)[2] <- "last_day"
 
 colnames_fcst_pivot %>% 
-  as.data.frame() %>% 
-  dplyr::rename(last_day = ".") %>% 
-  dplyr::mutate(last_day = gsub("_", "", last_day),
-                last_day = as.factor(last_day),
+  dplyr::mutate(first_day = as.factor(first_day),
+                first_day = lubridate::ym(first_day)) %>% 
+  dplyr::mutate(last_day = as.factor(last_day),
                 last_day = lubridate::ym(last_day),
                 last_day = lubridate::ceiling_date(last_day, unit = "month")-1) %>% 
-  dplyr::mutate(days = last_day - Sys.Date(),
+  dplyr::mutate(days = last_day - first_day,
                 days = as.integer(days)) -> duration
 
 duration$days -> duration
-duration-15 -> duration
 
 # fcst_pivot with avg
 colnames(fcst_pivot)[2] <- "pre_month"
