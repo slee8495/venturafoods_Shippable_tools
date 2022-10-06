@@ -11,7 +11,7 @@ library(lubridate)
 
 ####################################### File read ##################################
 # (Path revision Needed) Inventory Lot Details ----
-inv_lot_details <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test 3/Inventory Lot Detail - 08.23.22.xlsx")
+inv_lot_details <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/Inventory Lot Detail - FG 10.05.22.xlsx")
 
 inv_lot_details[-1, ] -> inv_lot_details
 colnames(inv_lot_details) <- inv_lot_details[1, ]
@@ -47,7 +47,7 @@ analysis_ref.2 %>%
   dplyr::relocate(index) -> analysis_ref.2
   
 # (Path revision Needed) Custord ----
-custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test 3/MSTR custord - 08.23.22.xlsx")
+custord <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/MSTR custord - 10.05.22.xlsx")
 
 
 custord[-1, ] -> custord
@@ -80,7 +80,7 @@ custord %>%
 
 
 # (Path revision Needed) planner address book (If updated, correct this link) ----
-planner_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 08.04.22.xlsx")
+planner_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 10.04.22.xlsx")
 planner_address %>% 
   janitor::clean_names() %>% 
   readr::type_convert() %>% 
@@ -90,7 +90,7 @@ planner_address %>%
 
 
 # (Path revision Needed) exception report ----
-exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/test 3/exception report 08.23.22 (1).xlsx")
+exception_report <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/exception report 10.05.22.xlsx")
 
 exception_report[-1:-2, ] -> exception_report
 colnames(exception_report) <- exception_report[1, ]
@@ -109,7 +109,7 @@ exception_report %>%
 
 # (Path revision Needed) IOM for MBX ----
 # Make sure to unlock the password before import (Elli)
-iom_mbx <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Automation/SS Optimization by Location - Finished Goods August 2022.xlsx",
+iom_mbx <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/Desktop/SS Optimization by Location - Finished Goods October 2022.xlsx",
                       sheet = "Fin Goods")
 
 iom_mbx[-1:-6, ] -> iom_mbx
@@ -126,7 +126,7 @@ iom_mbx %>%
 
 
 # (Path revision Needed) fcst ----
-fcst <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/2022/DSX Forecast Backup - 2022.08.23.xlsx")
+fcst <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.10.05.xlsx")
 
 fcst[-1, ] -> fcst
 colnames(fcst) <- fcst[1, ]
