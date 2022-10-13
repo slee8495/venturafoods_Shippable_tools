@@ -420,12 +420,12 @@ merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = 
   dplyr::rename(fcst_daily_avg_after_15_days = fcst_daily) %>% 
   dplyr::mutate(fcst_daily_avg_after_15_days = replace(fcst_daily_avg_after_15_days, is.na(fcst_daily_avg_after_15_days), 0)) -> analysis_ref.2
 
+
 # Consumption Factor 
 analysis_ref.2 %>% 
   dplyr::mutate(consumption_factor = ifelse(days_left_on_ssl <= 15, 0, 
                                             ifelse(diff_factor == 0, 
-                                                   ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, 0, (days_left_on_ssl-15)), diff_factor) * fcst_daily_avg_after_15_days)) -> analysis_ref.2
-
+                                                   ifelse(dummy_ref == ref, 0, (days_left_on_ssl - 15)), diff_factor) * fcst_daily_avg_after_15_days)) -> analysis_ref.2
 
 
 # Inv after Custord & Fcst
