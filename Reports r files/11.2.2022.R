@@ -20,6 +20,8 @@ inv_lot_details[-1, ] -> inv_lot_details
 inv_lot_details %>% 
   janitor::clean_names() %>%
   readr::type_convert() %>% 
+  dplyr::mutate(mfg_date = as.integer(mfg_date),
+                calculated_shippable_date = as.integer(calculated_shippable_date)) %>% 
   dplyr::mutate(sku = gsub("-", "", sku), 
                 ref = paste0(location, "_", sku)) %>% 
   dplyr::relocate(ref) %>% 
@@ -57,6 +59,7 @@ custord[-1, ] -> custord
 custord %>% 
   janitor::clean_names() %>% 
   readr::type_convert() %>% 
+  dplyr::mutate(sales_order_requested_ship_date = as.integer(sales_order_requested_ship_date)) %>%
   dplyr::rename(sku = product_label_sku,
                 open_order_cases = oo_cases) %>% 
   dplyr::mutate(sku = gsub("-", "", sku),
