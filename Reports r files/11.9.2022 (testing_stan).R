@@ -230,7 +230,9 @@ duration$days -> duration
 # Fcst daily column add to fcst_pivot_2
 
 fcst_pivot_2 %>% 
-  dplyr::mutate(fcst_daily = rowSums(across(.cols = c(fcst_month_1, fcst_month_2, fcst_month_3, fcst_month_4, fcst_month_5, current_month_after_custord)))) -> fcst_pivot
+  dplyr::mutate(fcst_daily_rowsum = rowSums(across(.cols = c(fcst_month_1, fcst_month_2, fcst_month_3, fcst_month_4, fcst_month_5, current_month_after_custord)))) %>% 
+  dplyr::mutate(fcst_daily = fcst_daily_rowsum / duration,
+                fcst_daily = round(fcst_daily, 0)) -> fcst_pivot
 
 ##################################### ETL ####################################
 
