@@ -164,11 +164,12 @@ fcst %>%
                 adjusted_forecast_cases = replace(adjusted_forecast_cases, is.na(adjusted_forecast_cases ), 0)) -> fcst
 
 
-reshape2::dcast(fcst, ref ~ forecast_month_year_code, value.var = "adjusted_forecast_cases", sum) -> fcst_pivot
+# fcst_pivot
+tidyr::pivot_wider(fcst, c(ref, mfg_ref), names_from = forecast_month_year_code, values_from = adjusted_forecast_cases) %>% 
+  data.frame() -> fcst_pivot
 
-fcst_pivot %>% 
-  dplyr::left_join(dplyr::select(fcst, ref, mfg_ref), by = "ref") %>% 
-  dplyr::relocate(ref, mfg_ref) -> fcst_pivot
+fcst_pivot[is.na(fcst_pivot)] <- 0
+
 
 
 
@@ -204,8 +205,11 @@ fcst_pivot_2 %>%
   dplyr::mutate(fcst_daily_avg = rowMeans(across(.cols = ends_with("avg")))) -> fcst_pivot_2
 
 
+# fcst_pivot for duration only
+reshape2::dcast(fcst, ref ~ forecast_month_year_code, value.var = "adjusted_forecast_cases", sum) -> fcst_pivot_duration
+
 # avg_sales_per_day 
-colnames(fcst_pivot) -> colnames_fcst_pivot
+colnames(fcst_pivot_duration) -> colnames_fcst_pivot
 data.frame(colnames_fcst_pivot) -> colnames_fcst_pivot
 
 colnames_fcst_pivot[nrow(colnames_fcst_pivot), ] -> colnames_fcst_pivot_last_month
@@ -456,6 +460,9 @@ analysis_ref.2 %>%
 
 
 # Fcst daily avg (after 15 days)
+
+
+
 merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = TRUE) %>% 
   dplyr::arrange(index) %>% 
   dplyr::rename(fcst_daily_avg_after_15_days = fcst_daily) %>% 
@@ -1441,6 +1448,44 @@ analysis_ref.2 %>%
 
 
 
+# mfg loc
+mfg %>% 
+  dplyr::select(ref, mfg_ref) -> mfg_loc
+
+analysis_ref.2 %>% 
+  dplyr::left_join(mfg_loc) %>% 
+  dplyr::rename(mfg_loc = mfg_ref) -> analysis_ref.2
+
+
+# Xfer to other Loc?
+fcst_pivot %>% 
+  dplyr::group_by(mfg_ref, ref) %>% 
+  dplyr::summarise(count = n()) %>% 
+  dplyr::mutate(count_of_mfg_ref = table(mfg_ref)) %>% 
+  dplyr::mutate(mfg_equal_ref = ifelse(mfg_ref == ref, 1, 0)) %>% 
+  dplyr::group_by(mfg_ref, ref) %>% 
+  dplyr::select(mfg_ref, ref, mfg_equal_ref, count_of_mfg_ref) %>% 
+  dplyr::ungroup()-> fcst_pivot_jm
+
+fcst_pivot_jm %>% 
+  dplyr::select(ref, mfg_equal_ref) -> fcst_pivot_j_m_3
+
+fcst_pivot_jm %>% 
+  dplyr::select(ref, count_of_mfg_ref) -> fcst_pivot_j_m_4
+
+  
+analysis_ref.2 %>% 
+  dplyr::left_join(fcst_pivot_j_m_3, by = "ref") %>% 
+  dplyr::left_join(fcst_pivot_j_m_4, by = "ref") -> analysis_ref.2
+
+
+analysis_ref.2 %>% 
+  dplyr::mutate(xfer_to_other_loc = 
+                  ifelse((count_of_mfg_ref=1 & mfg_equal_ref == 0) | ((count_of_mfg_ref > 1)), "Y", "N")) -> a
+
+
+
+
 
 ##################################################################################################################################################
 #################################################################### final touch #################################################################
@@ -1456,7 +1501,7 @@ analysis_ref.2 %>%
                 expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
                 diff_factor, total_custord_within_15_days, inv_after_custord, ending_inv_after_custord, ending_inv_after_custord_in_cost,
                 fcst_daily_avg_after_15_days, consumption_factor, inv_after_custord_and_fcst, ending_inv_after_custord_and_fcst,
-                ending_inv_after_custord_and_fcst_in_Cost) -> final_analysis_result
+                ending_inv_after_custord_and_fcst_in_Cost, mfg_loc) -> final_analysis_result
 
 
 final_analysis_result %>% 
