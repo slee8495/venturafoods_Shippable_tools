@@ -473,6 +473,7 @@ analysis_ref.2 %>%
   dplyr::mutate(ending_inv_after_custord_in_cost = ending_inv_after_custord * unit_cost) -> analysis_ref.2
 
 
+################################ This should be discussed
 # Fcst daily avg (after 15 days)
 merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = TRUE) %>% 
   dplyr::arrange(index) %>% 
@@ -1500,7 +1501,30 @@ fcst_pivot_ac %>%
   dplyr::summarise(sum_of_current_month = sum(current_month)) %>% 
   dplyr::ungroup() %>% 
   data.frame()-> fcst_pivot_ac
-  
+
+fcst_pivot_ac %>% 
+  dplyr::group_by(ref) %>% 
+  dplyr::summarise(sum_of_current_month_ref = sum(sum_of_current_month)) %>% 
+  dplyr::ungroup() %>% 
+  data.frame() -> fcst_pivot_ac_ref
+
+
+fcst_pivot_ac %>% 
+  dplyr::group_by(mfg_ref) %>% 
+  dplyr::summarise(sum_of_current_month_mfg_ref = sum(sum_of_current_month)) %>% 
+  dplyr::ungroup() %>% 
+  data.frame() -> fcst_pivot_ac_mfg_ref
+
+analysis_ref.2 %>% 
+  dplyr::mutate(mfg_ref = paste0(mfg_loc, "_", sku)) -> analysis_ref.2
+
+analysis_ref.2 %>% 
+  dplyr::left_join(fcst_pivot_ac_ref, by = "ref") %>% 
+  dplyr::left_join(fcst_pivot_ac_mfg_ref, by = "mfg_ref") %>% 
+  dplyr::mutate(percent_of_overall_demand = sum_of_current_month_ref / sum_of_current_month_mfg_ref) %>% 
+  dplyr::mutate(percent_of_overall_demand = replace(percent_of_overall_demand, is.na(percent_of_overall_demand), 0)) %>% 
+  dplyr::mutate(percent_of_overall_demand = sprintf("%1.0f%%", 100 * percent_of_overall_demand)) -> analysis_ref.2
+
 
 
 ##################################################################################################################################################
@@ -1517,7 +1541,7 @@ analysis_ref.2 %>%
                 expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
                 diff_factor, total_custord_within_15_days, inv_after_custord, ending_inv_after_custord, ending_inv_after_custord_in_cost,
                 fcst_daily_avg_after_15_days, consumption_factor, inv_after_custord_and_fcst, ending_inv_after_custord_and_fcst,
-                ending_inv_after_custord_and_fcst_in_Cost, mfg_loc, xfer_to_other_loc) -> final_analysis_result
+                ending_inv_after_custord_and_fcst_in_Cost, mfg_loc, xfer_to_other_loc, percent_of_overall_demand) -> final_analysis_result
 
 
 final_analysis_result %>% 
@@ -1550,6 +1574,9 @@ colnames(final_analysis_result)[23]<-"Consumption Factor"
 colnames(final_analysis_result)[24]<-"Inv after Custord & Fcst"
 colnames(final_analysis_result)[25]<-"Ending Inv after Custord & Fcst"
 colnames(final_analysis_result)[26]<-"Ending Inv after Custord & Fcst in $"
+colnames(final_analysis_result)[27]<-"Mfg Loc"
+colnames(final_analysis_result)[28]<-"Xfer to other Loc?"
+colnames(final_analysis_result)[29]<-"% of overall demand"
 
 
 writexl::write_xlsx(final_analysis_result, "11.09.2022_risk.xlsx")
