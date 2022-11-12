@@ -144,6 +144,14 @@ mfg %>%
                 ref = paste0(location, "_", sku),
                 mfg_ref = paste0(mfg_loc, "_", sku)) -> mfg
 
+mfg %>% 
+  dplyr::group_by(ref, mfg_loc) %>% 
+  dplyr::count() %>% 
+  dplyr::select(-n) %>% 
+  dplyr::ungroup() -> mfg
+
+
+
 # (Path revision Needed) fcst ----
 fcst <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.11.09.xlsx")
 
@@ -207,6 +215,11 @@ fcst_pivot_2 %>%
 
 # fcst_pivot for duration only
 reshape2::dcast(fcst, ref ~ forecast_month_year_code, value.var = "adjusted_forecast_cases", sum) -> fcst_pivot_duration
+
+fcst_pivot_duration %>% 
+  dplyr::select(1:8) -> fcst_pivot_duration
+
+fcst_pivot_duration[, -1:-2] -> fcst_pivot_duration
 
 # avg_sales_per_day 
 colnames(fcst_pivot_duration) -> colnames_fcst_pivot
@@ -460,9 +473,6 @@ analysis_ref.2 %>%
 
 
 # Fcst daily avg (after 15 days)
-
-
-
 merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = TRUE) %>% 
   dplyr::arrange(index) %>% 
   dplyr::rename(fcst_daily_avg_after_15_days = fcst_daily) %>% 
@@ -1449,12 +1459,8 @@ analysis_ref.2 %>%
 
 
 # mfg loc
-mfg %>% 
-  dplyr::select(ref, mfg_ref) -> mfg_loc
-
 analysis_ref.2 %>% 
-  dplyr::left_join(mfg_loc) %>% 
-  dplyr::rename(mfg_loc = mfg_ref) -> analysis_ref.2
+  dplyr::left_join(mfg) -> analysis_ref.2
 
 
 # Xfer to other Loc?
@@ -1481,7 +1487,7 @@ analysis_ref.2 %>%
 
 analysis_ref.2 %>% 
   dplyr::mutate(xfer_to_other_loc = 
-                  ifelse((count_of_mfg_ref=1 & mfg_equal_ref == 0) | ((count_of_mfg_ref > 1)), "Y", "N")) -> a
+                  ifelse((count_of_mfg_ref == 1 & mfg_equal_ref == 0) | (count_of_mfg_ref > 1), "Y", "N")) -> analysis_ref.2
 
 
 
