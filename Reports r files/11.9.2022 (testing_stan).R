@@ -7,6 +7,7 @@ library(reshape2)
 library(skimr)
 library(janitor)
 library(lubridate)
+library(plyr)
 
 
 ####################################### File read ##################################
@@ -1487,10 +1488,19 @@ analysis_ref.2 %>%
 
 analysis_ref.2 %>% 
   dplyr::mutate(xfer_to_other_loc = 
-                  ifelse((count_of_mfg_ref == 1 & mfg_equal_ref == 0) | (count_of_mfg_ref > 1), "Y", "N")) -> analysis_ref.2
+                  ifelse((count_of_mfg_ref == 1 & mfg_equal_ref == 0) | (count_of_mfg_ref > 1), "Y", "N")) %>% 
+  dplyr::mutate(xfer_to_other_loc = replace(xfer_to_other_loc, is.na(xfer_to_other_loc), "N")) -> analysis_ref.2
 
 
+# percent of overall demand
+fcst_pivot[, 1:3] -> fcst_pivot_ac
 
+fcst_pivot_ac %>% 
+  dplyr::group_by(mfg_ref, ref) %>% 
+  dplyr::summarise(sum_of_current_month = sum(current_month)) %>% 
+  dplyr::ungroup() %>% 
+  data.frame()-> fcst_pivot_ac
+  
 
 
 ##################################################################################################################################################
@@ -1507,7 +1517,7 @@ analysis_ref.2 %>%
                 expiration_date, calculated_shippable_date, mbx, unit_cost, days_range, sum_of_inventory_qty, inventory_in_cost,
                 diff_factor, total_custord_within_15_days, inv_after_custord, ending_inv_after_custord, ending_inv_after_custord_in_cost,
                 fcst_daily_avg_after_15_days, consumption_factor, inv_after_custord_and_fcst, ending_inv_after_custord_and_fcst,
-                ending_inv_after_custord_and_fcst_in_Cost, mfg_loc) -> final_analysis_result
+                ending_inv_after_custord_and_fcst_in_Cost, mfg_loc, xfer_to_other_loc) -> final_analysis_result
 
 
 final_analysis_result %>% 
