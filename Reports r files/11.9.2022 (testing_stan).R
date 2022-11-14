@@ -473,7 +473,6 @@ analysis_ref.2 %>%
   dplyr::mutate(ending_inv_after_custord_in_cost = ending_inv_after_custord * unit_cost) -> analysis_ref.2
 
 
-################################ This should be discussed
 # Fcst daily avg (after 15 days)
 merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = TRUE) %>% 
   dplyr::arrange(index) %>% 
