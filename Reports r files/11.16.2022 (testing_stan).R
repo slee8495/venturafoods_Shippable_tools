@@ -1579,3 +1579,9 @@ colnames(final_analysis_result)[29]<-"% of overall demand"
 
 
 writexl::write_xlsx(final_analysis_result, "11.09.2022_risk.xlsx")
+
+
+
+
+
+
