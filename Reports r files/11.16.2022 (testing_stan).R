@@ -484,7 +484,8 @@ merge(analysis_ref.2, fcst_pivot[, c("ref", "fcst_daily")], by = "ref", all.x = 
 analysis_ref.2 %>% 
   dplyr::mutate(consumption_factor = ifelse(days_left_on_ssl <= 15, 0, 
                                             ifelse(diff_factor == 0, 
-                                                   ifelse(dummy_ref == ref & days_left_on_ssl > 0, 0, (days_left_on_ssl - 15)), diff_factor) * fcst_daily_avg_after_15_days)) -> analysis_ref.2
+                                                   ifelse(dummy_ref == ref & dummy_days_left_on_ssl > 0, 0, (days_left_on_ssl - 15)), diff_factor) * fcst_daily_avg_after_15_days)) -> analysis_ref.2
+
 
 
 
@@ -1581,7 +1582,11 @@ colnames(final_analysis_result)[29]<-"% of overall demand"
 writexl::write_xlsx(final_analysis_result, "11.09.2022_risk.xlsx")
 
 
+analysis_ref.2 %>% 
+  filter(ref == "10_22223IGA") %>% 
+  select(ref, dummy_ref, days_left_on_ssl, dummy_days_left_on_ssl, diff_factor, , fcst_daily_avg_after_15_days, consumption_factor)
 
-
-
+# right now, 
+# fcst_daily_avg round problem solved will solve a lot of consumption factor
+# and then, there will be few of other problems
 
