@@ -250,7 +250,7 @@ duration$days -> duration
 fcst_pivot_2 %>% 
   dplyr::mutate(fcst_daily_rowsum = rowSums(across(.cols = c(fcst_month_1, fcst_month_2, fcst_month_3, fcst_month_4, fcst_month_5, current_month_after_custord)))) %>% 
   dplyr::mutate(fcst_daily = fcst_daily_rowsum / duration,
-                fcst_daily = round(fcst_daily, 0)) -> fcst_pivot
+                fcst_daily = ceiling(fcst_daily)) -> fcst_pivot
 
 ##################################### ETL ####################################
 
@@ -1582,9 +1582,6 @@ colnames(final_analysis_result)[29]<-"% of overall demand"
 writexl::write_xlsx(final_analysis_result, "11.30.2022_risk.xlsx")
 
 
-analysis_ref.2 %>% 
-  filter(ref == "10_22223IGA") %>% 
-  select(ref, dummy_ref, days_left_on_ssl, dummy_days_left_on_ssl, diff_factor, , fcst_daily_avg_after_15_days, consumption_factor)
 
 # right now, 
 # fcst_daily_avg round problem solved will solve a lot of consumption factor
